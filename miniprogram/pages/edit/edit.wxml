@@ -1,0 +1,114 @@
+<view class="page">
+  <view class="hero">
+    <rooster size="{{110}}" mood="happy"></rooster>
+    <view class="hero-copy">
+      <view class="hero-title">{{id ? '编辑这条提醒' : '告诉雄鸡一件事'}}</view>
+      <view class="hero-sub">到点它替你打鸣，绝不遗漏</view>
+    </view>
+  </view>
+
+  <view class="form">
+    <view class="field card-surface">
+      <view class="label">提醒标题</view>
+      <input class="input title-input" placeholder="例如：吃降压药" placeholder-class="ph" maxlength="40" value="{{form.title}}" bindinput="onTitle" />
+    </view>
+
+    <view class="field card-surface">
+      <view class="label">备注 <text class="label-sub">选填</text></view>
+      <textarea class="input note-input" placeholder="剂量、地点、取件码…任何细节" placeholder-class="ph" maxlength="200" value="{{form.note}}" bindinput="onNote" auto-height></textarea>
+    </view>
+
+    <view class="field card-surface">
+      <view class="label">紧急程度</view>
+      <view class="urgency-row">
+        <view
+          wx:for="{{urgencyOptions}}"
+          wx:key="value"
+          class="urgency u{{item.value}} press {{form.urgency === item.value ? 'on' : ''}}"
+          data-v="{{item.value}}"
+          bindtap="onUrgency"
+        >
+          <text class="u-name">{{item.label}}</text>
+          <text class="u-desc">{{item.desc}}</text>
+        </view>
+      </view>
+      <view class="hint" wx:if="{{form.urgency === 4}}">紧急档到期时，小程序内会全屏打鸣强提醒。</view>
+    </view>
+
+    <view class="field card-surface">
+      <view class="label">日期与时间</view>
+      <view class="dt-row">
+        <picker mode="date" value="{{form.start_date}}" start="{{minDate}}" bindchange="onDate">
+          <view class="dt-box press">{{form.start_date}}</view>
+        </picker>
+        <picker mode="time" value="{{form.time_str}}" bindchange="onTime">
+          <view class="dt-box press strong">{{form.time_str}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="field card-surface">
+      <view class="label">提醒频率</view>
+      <picker mode="selector" range="{{freqOptions}}" range-key="label" value="{{freqIndex}}" bindchange="onFreq">
+        <view class="select-box press">
+          <text>{{freqOptions[freqIndex].label}}</text>
+          <view class="caret"></view>
+        </view>
+      </picker>
+
+      <view class="sub-field" wx:if="{{form.freq_type === 'weekly'}}">
+        <view class="sub-label">星期几</view>
+        <picker mode="selector" range="{{weekOptions}}" value="{{form.weekly_day}}" bindchange="onWeek">
+          <view class="select-box press"><text>{{weekOptions[form.weekly_day]}}</text><view class="caret"></view></view>
+        </picker>
+      </view>
+
+      <view class="sub-field" wx:if="{{form.freq_type === 'interval'}}">
+        <view class="sub-label">每隔</view>
+        <view class="interval-row">
+          <view class="stepper press" data-d="-1" bindtap="stepInterval">−</view>
+          <view class="step-value">{{form.interval_value}}</view>
+          <view class="stepper press" data-d="1" bindtap="stepInterval">＋</view>
+          <view class="unit-seg">
+            <view class="unit press {{form.interval_unit === 'hour' ? 'on' : ''}}" data-u="hour" bindtap="onUnit">小时</view>
+            <view class="unit press {{form.interval_unit === 'day' ? 'on' : ''}}" data-u="day" bindtap="onUnit">天</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="sub-field" wx:if="{{form.freq_type === 'monthly'}}">
+        <view class="sub-label">每月几号</view>
+        <picker mode="selector" range="{{monthDays}}" value="{{form.monthly_day - 1}}" bindchange="onMonthDay">
+          <view class="select-box press"><text>{{monthDays[form.monthly_day - 1]}}</text><view class="caret"></view></view>
+        </picker>
+        <view class="hint">小月没有 31 日时，自动顺延到当月最后一天。</view>
+      </view>
+
+      <view class="hint" wx:if="{{form.freq_type !== 'once'}}">重复提醒完成后，雄鸡自动排好下一次。</view>
+    </view>
+
+    <view class="field card-surface">
+      <view class="label">推送提前量</view>
+      <picker mode="selector" range="{{leadOptions}}" range-key="label" value="{{leadIndex}}" bindchange="onLead">
+        <view class="select-box press">
+          <text>{{leadOptions[leadIndex].label}}</text>
+          <view class="caret"></view>
+        </view>
+      </picker>
+      <view class="hint">微信订阅消息会在「时间 − 提前量」那一刻下发。</view>
+    </view>
+
+    <view class="sub-card">
+      <view class="sub-card-title">推送额度 · 剩余 {{quota}} 次</view>
+      <view class="sub-card-sub" wx:if="{{templateConfigured}}">保存时微信会询问是否允许推送；每次允许 +1 额度，推送一次消耗 1 次。</view>
+      <view class="sub-card-sub" wx:else>当前为开发模式：保存时模拟授权。上线配置模板 ID 后自动切换为真实微信订阅消息。</view>
+    </view>
+  </view>
+
+  <view class="foot-space"></view>
+  <view class="save-bar">
+    <view class="save-btn press {{saving ? 'disabled' : ''}}" bindtap="onSave">
+      {{saving ? '保存中…' : (id ? '保存修改' : '保存并授权提醒')}}
+    </view>
+  </view>
+</view>

@@ -1,0 +1,6 @@
+{
+  "desc": "雄鸡提醒器页面索引",
+  "rules": [
+    { "action": "allow", "page": "*" }
+  ]
+}

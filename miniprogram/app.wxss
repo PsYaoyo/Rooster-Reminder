@@ -1,0 +1,79 @@
+/* Rooster Reminder · 黎明色系设计系统 */
+page {
+  --night: #2B1B4E;
+  --dusk: #7A2450;
+  --coral: #E8442E;
+  --amber: #FF9E1B;
+  --gold: #FFD34D;
+  --paper: #FFF6E8;
+  --surface: #FFFDF7;
+  --ink: #221A10;
+  --ink2: #6B5D4A;
+  --ink3: #A79678;
+  --line: #F0E2CC;
+  --u1: #2E9E6B;
+  --u2: #F59E0B;
+  --u3: #FF5A36;
+  --u4: #D92D20;
+  --info: #2F6FED;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  font-size: 28rpx;
+  line-height: 1.5;
+}
+
+view, text, button, input, textarea, picker, scroll-view {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+button::after { border: none; }
+
+::-webkit-scrollbar { width: 6rpx; height: 6rpx; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #E4CFA8; border-radius: 6rpx; }
+::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+.card-surface {
+  background: var(--surface);
+  border: 2rpx solid var(--line);
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(43, 27, 78, 0.06);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  background: #F6EBD7;
+  color: var(--ink2);
+}
+
+.press { transition: transform 0.12s ease, opacity 0.12s ease; }
+.press:active { transform: scale(0.96); opacity: 0.85; }
+
+@keyframes rr-rise {
+  from { opacity: 0; transform: translateY(24rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes rr-pop {
+  0% { opacity: 0; transform: scale(0.86); }
+  60% { transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes rr-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

@@ -1,0 +1,140 @@
+<view class="page">
+  <!-- 黎明天空头部 -->
+  <view class="sky">
+    <view class="sun"><view class="sun-core"></view></view>
+    <view class="ray ray1"></view>
+    <view class="ray ray2"></view>
+    <view class="ray ray3"></view>
+    <view class="cloud c1"></view>
+    <view class="cloud c2"></view>
+    <view class="sky-row">
+      <view class="sky-mascot">
+        <rooster size="{{150}}" mood="{{muted ? 'sleep' : 'idle'}}"></rooster>
+      </view>
+      <view class="sky-copy">
+        <view class="hello">{{greeting}}，打鸣人</view>
+        <view class="date">{{dateLabel}}</view>
+        <view class="sky-stats" wx:if="{{stats}}">
+          <text class="pill">{{stats.active}} 进行中</text>
+          <text class="pill warn" wx:if="{{stats.overdue}}">{{stats.overdue}} 过期</text>
+          <text class="pill gold">额度 {{quota}}</text>
+        </view>
+      </view>
+      <view class="mute press {{muted ? 'off' : ''}}" bindtap="onToggleMute">
+        <view class="spk"></view>
+        <view class="wave w1" wx:if="{{!muted}}"></view>
+        <view class="wave w2" wx:if="{{!muted}}"></view>
+        <view class="slash" wx:if="{{muted}}"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索 / 筛选 / 排序 -->
+  <view class="toolbar">
+    <view class="search">
+      <view class="mag"></view>
+      <input class="search-input" placeholder="搜索提醒标题或备注" placeholder-class="ph" value="{{q}}" bindinput="onSearch" confirm-type="search" />
+    </view>
+    <picker class="sort press" mode="selector" range="{{sorts}}" range-key="label" value="{{sortIndex}}" bindchange="onSort">
+      <text>{{sorts[sortIndex].label}}</text>
+      <view class="caret"></view>
+    </picker>
+  </view>
+  <scroll-view class="chips" scroll-x enhanced show-scrollbar="{{false}}">
+    <view class="chips-row">
+      <view wx:for="{{filters}}" wx:key="key" class="chip press {{filter === item.key ? 'on' : ''}}" data-key="{{item.key}}" bindtap="onFilter">{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- 列表 -->
+  <view class="list">
+    <view wx:if="{{loading}}" class="loading">
+      <rooster size="{{120}}" mood="idle"></rooster>
+      <text>雄鸡正在梳理羽毛…</text>
+    </view>
+
+    <view wx:elif="{{reminders.length === 0}}" class="empty">
+      <rooster size="{{180}}" mood="sleep"></rooster>
+      <view class="empty-title">这里安安静静</view>
+      <view class="empty-sub">没有匹配的提醒。新建一条，让雄鸡替你记住。</view>
+      <view class="empty-btn press" bindtap="goCreate">新建第一条提醒</view>
+    </view>
+
+    <view wx:else class="cards">
+      <view
+        wx:for="{{reminders}}"
+        wx:key="id"
+        class="card u{{item.urgency}} {{item.overdue ? 'overdue' : ''}} {{item.status !== 'active' ? 'finished' : ''}}"
+        style="animation-delay:{{index * 45}}ms"
+      >
+        <view class="stripe"></view>
+        <view class="card-main">
+          <view class="card-top">
+            <text class="title">{{item.title}}</text>
+            <text class="u-tag" style="background:{{item.urgencyMeta.soft}};color:{{item.urgencyMeta.color}}">{{item.urgencyMeta.label}}</text>
+          </view>
+          <view class="meta">
+            <text class="when {{item.overdue ? 'late' : ''}}">{{item.overdue ? item.overdueLabel : item.nextLabel}}</text>
+            <text class="tag">{{item.freqLabel}}</text>
+            <text class="tag" wx:if="{{item.lead_min}}">提前{{item.lead_min}}分</text>
+            <text class="tag snooze" wx:if="{{item.snooze_count}}">贪睡×{{item.snooze_count}}</text>
+          </view>
+          <view class="note" wx:if="{{item.note}}">{{item.note}}</view>
+        </view>
+        <view class="card-actions" wx:if="{{item.status === 'active'}}">
+          <view class="act done press" data-id="{{item.id}}" catchtap="onComplete">
+            <view class="check"></view><text>完成</text>
+          </view>
+          <view class="act nap press" data-id="{{item.id}}" catchtap="openSnooze">
+            <view class="clock"></view><text>贪睡</text>
+          </view>
+          <view class="act more press" data-id="{{item.id}}" catchtap="onMore">⋯</view>
+        </view>
+        <view class="card-actions" wx:else>
+          <text class="status-label">{{item.statusLabel}}</text>
+          <view class="act more press" data-id="{{item.id}}" catchtap="onMore">⋯</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="foot-space"></view>
+
+  <!-- 贪睡半屏 -->
+  <view class="mask" wx:if="{{snoozeTarget}}" bindtap="closeSnooze">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-title">稍后提醒</view>
+      <view class="sheet-sub">雄鸡会憋住嗓子，等你选的时间再打鸣</view>
+      <view class="sheet-grid">
+        <view class="sheet-opt press" data-min="5" bindtap="pickSnooze">5 分钟</view>
+        <view class="sheet-opt press" data-min="10" bindtap="pickSnooze">10 分钟</view>
+        <view class="sheet-opt press" data-min="30" bindtap="pickSnooze">30 分钟</view>
+        <view class="sheet-opt press" data-min="60" bindtap="pickSnooze">1 小时</view>
+      </view>
+      <view class="sheet-cancel press" bindtap="closeSnooze">取消</view>
+    </view>
+  </view>
+
+  <!-- 紧急全屏打鸣 -->
+  <view class="crow-mask" wx:if="{{crowOverlay}}">
+    <view class="crow-glow"></view>
+    <view class="crow-box">
+      <rooster size="{{340}}" mood="crow"></rooster>
+      <view class="crow-kicker">紧急提醒 · 雄鸡全力打鸣</view>
+      <view class="crow-title">{{crowOverlay.title}}</view>
+      <view class="crow-note" wx:if="{{crowOverlay.note}}">{{crowOverlay.note}}</view>
+      <view class="crow-when">{{crowOverlay.nextLabel}}</view>
+      <view class="crow-actions">
+        <view class="crow-btn primary press" bindtap="crowComplete">立即完成</view>
+        <view class="crow-btn press" bindtap="crowSnooze">贪睡 10 分钟</view>
+        <view class="crow-btn ghost press" bindtap="crowIgnore">忽略本次</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 删除撤销 -->
+  <view class="undo" wx:if="{{undo}}">
+    <text class="undo-text">已删除「{{undo.title}}」</text>
+    <view class="undo-btn press" bindtap="onUndo">撤销</view>
+  </view>
+</view>

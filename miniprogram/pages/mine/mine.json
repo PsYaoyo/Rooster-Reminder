@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "rooster": "/components/rooster/rooster"
+  },
+  "navigationBarTitleText": "我的"
+}

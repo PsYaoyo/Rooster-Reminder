@@ -1,0 +1,32 @@
+<view class="rooster mood-{{mood}}" style="width:{{size}}rpx;height:{{size}}rpx;">
+  <view class="stage" style="transform:scale({{scale}});">
+    <view class="ring r1"></view>
+    <view class="ring r2"></view>
+    <view class="ring r3"></view>
+    <view class="tail">
+      <view class="feather f1"></view>
+      <view class="feather f2"></view>
+      <view class="feather f3"></view>
+    </view>
+    <view class="legs">
+      <view class="leg l1"></view>
+      <view class="leg l2"></view>
+    </view>
+    <view class="body"></view>
+    <view class="wing"></view>
+    <view class="head">
+      <view class="comb c1"></view>
+      <view class="comb c2"></view>
+      <view class="comb c3"></view>
+      <view class="skull"></view>
+      <view class="eye"></view>
+      <view class="beak-top"></view>
+      <view class="beak-bottom"></view>
+      <view class="wattle"></view>
+    </view>
+    <view class="zzz z1">z</view>
+    <view class="zzz z2">z</view>
+    <view class="spark s1"></view>
+    <view class="spark s2"></view>
+  </view>
+</view>

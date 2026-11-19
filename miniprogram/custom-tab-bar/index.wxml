@@ -1,0 +1,16 @@
+<view class="bar">
+  <view class="tab {{selected === 0 ? 'on' : ''}}" data-idx="0" bindtap="onTab">
+    <view class="ic ic-bell"><view class="clapper"></view></view>
+    <text>提醒</text>
+  </view>
+  <view class="create press" bindtap="onCreate">
+    <view class="create-disc">
+      <rooster size="{{110}}" mood="idle"></rooster>
+    </view>
+    <text class="create-label">新建</text>
+  </view>
+  <view class="tab {{selected === 1 ? 'on' : ''}}" data-idx="1" bindtap="onTab">
+    <view class="ic ic-person"></view>
+    <text>我的</text>
+  </view>
+</view>

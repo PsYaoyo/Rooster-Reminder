@@ -1,0 +1,76 @@
+<view class="page">
+  <view class="profile card-surface">
+    <button class="avatar-btn press" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <image wx:if="{{user.avatar}}" class="avatar-img" src="{{user.avatar}}" mode="aspectFill"></image>
+      <view wx:else class="avatar-fallback">
+        <rooster size="{{110}}" mood="idle"></rooster>
+      </view>
+      <view class="avatar-edit">换</view>
+    </button>
+    <view class="profile-copy">
+      <input class="nick-input" type="nickname" placeholder="点击填写昵称" placeholder-class="ph" value="{{user.nickname}}" bindblur="onNickname" bindchange="onNickname" />
+      <view class="profile-sub">{{dev ? '开发模式 · 本地身份' : '微信已登录'}} · 数据云端同步</view>
+    </view>
+    <rooster size="{{90}}" mood="{{user.muted ? 'sleep' : 'happy'}}"></rooster>
+  </view>
+
+  <view class="stats" wx:if="{{stats}}">
+    <view class="stat"><text class="num">{{stats.active}}</text><text class="cap">进行中</text></view>
+    <view class="stat warn"><text class="num">{{stats.overdue}}</text><text class="cap">已过期</text></view>
+    <view class="stat gold"><text class="num">{{stats.doneToday}}</text><text class="cap">今日完成</text></view>
+    <view class="stat green"><text class="num">{{stats.doneTotal}}</text><text class="cap">累计完成</text></view>
+  </view>
+
+  <view class="section card-surface">
+    <view class="row">
+      <view class="row-copy">
+        <view class="row-title">打鸣声音</view>
+        <view class="row-sub">关闭后所有提示音静音，视觉提醒保留</view>
+      </view>
+      <switch checked="{{user.muted}}" color="#E8442E" bindchange="onMute" />
+    </view>
+    <view class="row">
+      <view class="row-copy">
+        <view class="row-title">试听打鸣</view>
+        <view class="row-sub">确认音量与音色是否符合预期</view>
+      </view>
+      <view class="mini-btn press" bindtap="onPreviewSound">试听</view>
+    </view>
+    <view class="row">
+      <view class="row-copy">
+        <view class="row-title">推送额度</view>
+        <view class="row-sub">剩余 {{user.sub_quota}} 次 · 每次推送消耗 1 次</view>
+      </view>
+      <view class="mini-btn gold press" bindtap="onTopUp">补充授权</view>
+    </view>
+    <view class="row">
+      <view class="row-copy">
+        <view class="row-title">清除已结束</view>
+        <view class="row-sub">已完成 / 已忽略的提醒移入回收站</view>
+      </view>
+      <view class="mini-btn press" bindtap="onClearDone">清除</view>
+    </view>
+  </view>
+
+  <view class="section-title">推送记录</view>
+  <view class="section card-surface log">
+    <view wx:if="{{notifications.length === 0}}" class="log-empty">还没有推送记录。到点或模拟触发后会出现在这里。</view>
+    <view wx:for="{{notifications}}" wx:key="id" class="log-item">
+      <view class="log-dot" style="background:{{item.channelMeta.color}}"></view>
+      <view class="log-copy">
+        <view class="log-title">{{item.title}}</view>
+        <view class="log-body">{{item.body}}</view>
+      </view>
+      <view class="log-right">
+        <text class="log-channel" style="color:{{item.channelMeta.color}}">{{item.channelMeta.label}}</text>
+        <text class="log-time">{{item.sentLabel}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="about">
+    <view class="about-name">Rooster Reminder · 雄鸡提醒器</view>
+    <view class="about-sub">v{{version}} · 黎明即起，既白不忘</view>
+  </view>
+  <view class="foot-space"></view>
+</view>

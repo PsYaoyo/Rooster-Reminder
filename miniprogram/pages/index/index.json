@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "rooster": "/components/rooster/rooster"
+  },
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#2B1B4E",
+  "backgroundTextStyle": "light"
+}

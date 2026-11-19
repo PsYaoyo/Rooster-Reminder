@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rooster Reminder · 雄鸡提醒器 · 预览</title>
+<style>
+:root{
+  --night:#2B1B4E; --dusk:#7A2450; --coral:#E8442E; --amber:#FF9E1B; --gold:#FFD34D;
+  --paper:#FFF6E8; --surface:#FFFDF7; --ink:#221A10; --ink2:#6B5D4A; --ink3:#A79678; --line:#F0E2CC;
+  --u1:#2E9E6B; --u2:#F59E0B; --u3:#FF5A36; --u4:#D92D20; --info:#2F6FED;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:#1a1030;
+  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  color:var(--ink); display:flex; align-items:center; justify-content:center;
+}
+/* phone frame on desktop, full-bleed on mobile */
+#phone{
+  width:100%; max-width:430px; height:100dvh; max-height:932px; position:relative;
+  background:var(--paper); overflow:hidden; display:flex; flex-direction:column;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);
+}
+@media(min-width:520px){ #phone{border-radius:36px; border:10px solid #120b22; height:min(92dvh,900px)} }
+#scroll{flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:#E4CFA8 transparent}
+#scroll::-webkit-scrollbar{width:6px}
+#scroll::-webkit-scrollbar-thumb{background:#E4CFA8;border-radius:6px}
+#scroll::-webkit-scrollbar-thumb:hover{background:var(--amber)}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+.press{transition:transform .12s,opacity .12s}
+.press:active{transform:scale(.96);opacity:.85}
+
+/* rooster */
+.rooster{position:relative;display:inline-block;flex:none}
+.rooster .stage{position:absolute;left:50%;top:50%;width:100px;height:100px;margin:-50px 0 0 -50px;transform-origin:center}
+.rooster .stage>div{position:absolute}
+.feather{position:absolute;border-radius:50%;transform-origin:right center}
+.f1{left:1px;top:30px;width:38px;height:13px;background:var(--dusk);transform:rotate(-30deg)}
+.f2{left:0;top:42px;width:40px;height:13px;background:var(--coral);transform:rotate(-10deg)}
+.f3{left:3px;top:54px;width:35px;height:12px;background:var(--amber);transform:rotate(8deg)}
+.tail{left:0;top:0;width:100px;height:100px;transform-origin:40% 60%}
+.leg{position:absolute;width:4px;height:13px;background:#B45309;border-radius:2px}
+.leg:after{content:'';position:absolute;left:-3px;bottom:0;width:11px;height:3px;background:#B45309;border-radius:2px}
+.l1{left:41px;top:86px}.l2{left:55px;top:86px}
+.body{left:20px;top:41px;width:56px;height:48px;border-radius:50%;background:linear-gradient(135deg,#FFB020,var(--coral));transform-origin:center bottom;box-shadow:inset -4px -5px 0 rgba(122,36,80,.18)}
+.wing{left:31px;top:54px;width:28px;height:21px;border-radius:50%;background:#C2402A;transform:rotate(-18deg);box-shadow:inset 2px 2px 0 rgba(255,211,77,.35)}
+.head{left:52px;top:17px;width:40px;height:40px;transform-origin:22% 88%}
+.head>div{position:absolute}
+.skull{left:4px;top:6px;width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--amber))}
+.comb{background:var(--u4);border-radius:50%}
+.comb.c1{left:5px;top:-3px;width:10px;height:13px}.comb.c2{left:13px;top:-6px;width:11px;height:16px}.comb.c3{left:22px;top:-3px;width:10px;height:13px}
+.eye{left:20px;top:16px;width:5px;height:5px;background:var(--ink);border-radius:50%}
+.beak-top{left:33px;top:17px;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:13px solid #FFB020;transform-origin:left center}
+.beak-bottom{left:33px;top:21px;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:11px solid #E8890C;transform-origin:left center}
+.wattle{left:30px;top:27px;width:7px;height:10px;background:var(--u4);border-radius:50%}
+.ring{left:75px;top:8px;width:26px;height:26px;border:2px solid rgba(255,211,77,.9);border-radius:50%;opacity:0}
+.zzz{font-size:15px;font-weight:800;color:var(--dusk);opacity:0}
+.z1{left:76px;top:2px}.z2{left:86px;top:-6px;font-size:11px}
+.spark{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);opacity:0}
+.s1{left:9px;top:14px}.s2{left:86px;top:59px}
+.m-idle .body{animation:breathe 3.2s ease-in-out infinite}
+.m-idle .head{animation:headbob 3.2s ease-in-out infinite}
+.m-idle .tail{animation:sway 4s ease-in-out infinite}
+.m-crow .head{animation:crowtilt .9s ease-in-out infinite}
+.m-crow .beak-top{transform:rotate(-16deg)}
+.m-crow .beak-bottom{transform:rotate(20deg)}
+.m-crow .comb{animation:comb .45s ease-in-out infinite}
+.m-crow .body{animation:breathe .9s ease-in-out infinite}
+.m-crow .ring{animation:ring 1.1s ease-out infinite}
+.m-crow .r2{animation-delay:.35s}.m-crow .r3{animation-delay:.7s}
+.m-happy .body,.m-happy .head,.m-happy .tail{animation:jump .6s ease-in-out infinite}
+.m-happy .eye{height:2px;border-radius:2px;transform:translateY(2px)}
+.m-happy .spark{animation:spark .7s ease-in-out infinite alternate}
+.m-happy .s2{animation-delay:.3s}
+.m-sleep .body{animation:breathe 4.6s ease-in-out infinite}
+.m-sleep .head{transform:rotate(10deg)}
+.m-sleep .eye{height:2px;border-radius:2px;transform:translateY(2px)}
+.m-sleep .zzz{animation:zfloat 2.4s ease-in-out infinite}
+.m-sleep .z2{animation-delay:1.2s}
+@keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.035)}}
+@keyframes headbob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+@keyframes sway{0%,100%{transform:rotate(0)}50%{transform:rotate(4deg)}}
+@keyframes crowtilt{0%,100%{transform:rotate(0)}45%{transform:rotate(-18deg)}70%{transform:rotate(-14deg)}}
+@keyframes comb{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+@keyframes ring{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(2.1)}}
+@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+@keyframes spark{from{opacity:.2;transform:rotate(45deg) scale(.7)}to{opacity:1;transform:rotate(45deg) scale(1.25)}}
+@keyframes zfloat{0%{opacity:0;transform:translateY(3px)}35%{opacity:1}100%{opacity:0;transform:translateY(-11px)}}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.15);opacity:1}}
+@keyframes sheet{from{transform:translateY(60%)}to{transform:translateY(0)}}
+@keyframes drift{from{transform:translateX(-15px)}to{transform:translateX(30px)}}
+
+/* sky header */
+.sky{position:relative;overflow:hidden;padding:20px 18px 24px;background:linear-gradient(165deg,var(--night) 0%,var(--dusk) 34%,var(--coral) 66%,var(--amber) 92%,var(--gold) 100%);border-radius:0 0 22px 22px;box-shadow:0 6px 18px rgba(122,36,80,.25)}
+.sun{position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(255,211,77,.55),rgba(255,211,77,0) 70%)}
+.sun-core{position:absolute;left:35px;top:35px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFF3C4,var(--gold) 60%,var(--amber));box-shadow:0 0 20px rgba(255,211,77,.8)}
+.ray{position:absolute;right:30px;top:30px;width:160px;height:2px;background:linear-gradient(90deg,rgba(255,211,77,0),rgba(255,211,77,.5));transform-origin:right center;border-radius:1px}
+.ray1{transform:rotate(24deg)}.ray2{transform:rotate(52deg)}.ray3{transform:rotate(80deg)}
+.cloud{position:absolute;height:9px;border-radius:99px;background:rgba(255,246,232,.28)}
+.cloud.c1{width:90px;left:20px;top:20px;animation:drift 14s linear infinite}
+.cloud.c2{width:60px;left:120px;top:45px;animation:drift 18s linear infinite reverse}
+.sky-row{position:relative;display:flex;align-items:center;gap:12px}
+.sky-mascot{width:76px;height:76px;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(255,246,232,.16);border:1px solid rgba(255,211,77,.4);border-radius:50%}
+.sky-copy{flex:1;min-width:0}
+.hello{font-size:22px;font-weight:800;color:var(--paper);letter-spacing:.5px;text-shadow:0 1px 4px rgba(43,27,78,.4)}
+.date{font-size:12px;color:rgba(255,246,232,.85);margin-top:2px}
+.sky-stats{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.pill{padding:2px 9px;border-radius:99px;font-size:10px;background:rgba(43,27,78,.35);color:#FFE9B0;border:1px solid rgba(255,211,77,.35)}
+.pill.warn{background:rgba(217,45,32,.5);color:#FFE3DE;border-color:rgba(255,120,100,.6)}
+.pill.gold{background:rgba(255,211,77,.22);color:#FFF3C4}
+.mute{position:relative;flex:none;width:38px;height:38px;border-radius:50%;background:rgba(43,27,78,.35);border:1px solid rgba(255,211,77,.4);display:flex;align-items:center;justify-content:center}
+.spk{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-right:8px solid var(--paper);margin-right:7px;position:relative}
+.spk:before{content:'';position:absolute;left:2px;top:-3.5px;width:4px;height:7px;background:var(--paper);border-radius:1px}
+.wave{position:absolute;right:7px;top:50%;border:1.5px solid transparent;border-right-color:var(--gold);border-radius:50%}
+.w1{width:10px;height:10px;margin-top:-5px}.w2{width:16px;height:16px;margin-top:-8px;right:4px}
+.slash{position:absolute;left:8px;top:18px;width:22px;height:2.5px;background:#FF7864;border-radius:2px;transform:rotate(-40deg)}
+
+/* toolbar */
+.toolbar{display:flex;gap:8px;padding:14px 16px 4px;align-items:center}
+.search{flex:1;display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:8px 13px}
+.mag{width:11px;height:11px;border:2px solid var(--ink3);border-radius:50%;position:relative;flex:none}
+.mag:after{content:'';position:absolute;right:-4px;bottom:-3px;width:5px;height:2px;background:var(--ink3);transform:rotate(45deg);border-radius:1px}
+.search input{flex:1;border:none;outline:none;background:none;font-size:13px;color:var(--ink);min-width:0}
+.search input::placeholder{color:var(--ink3)}
+.sortsel{flex:none;padding:8px 12px;background:var(--surface);border:1px solid var(--line);border-radius:99px;font-size:12px;color:var(--ink2);outline:none;cursor:pointer}
+.chips{display:flex;gap:7px;padding:9px 16px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:6px 15px;border-radius:99px;background:var(--surface);border:1px solid var(--line);color:var(--ink2);font-size:12px;cursor:pointer}
+.chip.on{background:linear-gradient(135deg,var(--coral),var(--amber));border-color:transparent;color:var(--paper);font-weight:700;box-shadow:0 2px 8px rgba(232,68,46,.35)}
+
+/* list */
+.list{padding:4px 16px 0}
+.cards{display:flex;flex-direction:column;gap:11px}
+.card{position:relative;display:flex;align-items:stretch;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 11px 13px 15px;overflow:hidden;box-shadow:0 2px 9px rgba(43,27,78,.06);animation:rise .4s ease both}
+.stripe{position:absolute;left:0;top:0;bottom:0;width:5px}
+.u1 .stripe{background:var(--u1)}.u2 .stripe{background:var(--u2)}.u3 .stripe{background:var(--u3)}.u4 .stripe{background:var(--u4)}
+.card.overdue{border-color:#F3B4AC;background:#FFF3F0;box-shadow:0 3px 11px rgba(217,45,32,.15)}
+.card.overdue .stripe{animation:blink 1.6s ease-in-out infinite}
+.card.finished{opacity:.72}
+.card-main{flex:1;min-width:0}
+.card-top{display:flex;align-items:center;gap:7px}
+.title{font-size:15px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.u-tag{padding:1px 8px;border-radius:99px;font-size:10px;font-weight:700;flex:none}
+.meta{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap}
+.when{font-size:12px;font-weight:700;color:var(--dusk);font-variant-numeric:tabular-nums}
+.when.late{color:var(--u4)}
+.tag{display:inline-flex;padding:1px 8px;border-radius:99px;font-size:10px;background:#F6EBD7;color:var(--ink2)}
+.tag.snooze{background:#EFE3F7;color:var(--dusk)}
+.note{margin-top:5px;font-size:11px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-actions{display:flex;flex-direction:column;gap:6px;justify-content:center;flex:none;width:64px}
+.act{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px 0;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer}
+.act.done{background:#E4F5EC;color:var(--u1)}
+.act.nap{background:#FDF0D5;color:#B45309}
+.act.more{background:#F6EBD7;color:var(--ink2);font-size:14px;letter-spacing:1px}
+.check{width:8px;height:4px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg) translateY(-1px)}
+.clock{width:9px;height:9px;border:1.5px solid currentColor;border-radius:50%;position:relative}
+.clock:after{content:'';position:absolute;left:3px;top:1px;width:1.5px;height:3.5px;background:currentColor}
+.status-label{font-size:11px;color:var(--u1);font-weight:700;text-align:center}
+.empty{display:flex;flex-direction:column;align-items:center;padding:12px 22px;text-align:center}
+.empty-title{font-size:17px;font-weight:800;margin-top:6px}
+.empty-sub{font-size:12px;color:var(--ink2);margin-top:4px}
+.empty-btn{margin-top:12px;padding:10px 26px;border-radius:99px;background:linear-gradient(135deg,var(--coral),var(--amber));color:var(--paper);font-weight:700;box-shadow:0 4px 12px rgba(232,68,46,.35);cursor:pointer}
+.foot-space{height:90px}
+
+/* tabbar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:60px;display:flex;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -3px 12px rgba(43,27,78,.08);z-index:90;padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;color:var(--ink2);cursor:pointer}
+.tab.on{color:var(--coral);font-weight:700}
+.ic{position:relative;width:20px;height:20px}
+.ic-bell{width:16px;height:15px;margin:0 auto;border:2px solid currentColor;border-bottom:none;border-radius:8px 8px 2px 2px;position:relative}
+.ic-bell:after{content:'';position:absolute;left:-3px;right:-3px;bottom:-2px;height:2px;background:currentColor;border-radius:1px}
+.ic-bell .clapper{position:absolute;left:50%;bottom:-6px;width:4px;height:4px;margin-left:-2px;background:currentColor;border-radius:50%}
+.ic-person:before{content:'';position:absolute;left:50%;top:1px;width:8px;height:8px;margin-left:-4px;border:2px solid currentColor;border-radius:50%}
+.ic-person:after{content:'';position:absolute;left:50%;bottom:1px;width:15px;height:8px;margin-left:-7.5px;border:2px solid currentColor;border-bottom:none;border-radius:8px 8px 0 0}
+.create{flex:1.1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:3px;cursor:pointer}
+.create-disc{width:54px;height:54px;margin-top:-28px;border-radius:50%;background:linear-gradient(150deg,var(--gold),var(--amber) 45%,var(--coral));box-shadow:0 4px 12px rgba(232,68,46,.4),inset 0 -3px 0 rgba(122,36,80,.25);display:flex;align-items:center;justify-content:center;border:3px solid var(--surface)}
+.create-label{font-size:10px;font-weight:700;color:var(--coral);margin-top:1px}
+
+/* overlays */
+.mask{position:absolute;inset:0;background:rgba(43,27,78,.5);z-index:120;display:flex;align-items:flex-end;animation:fade .2s ease both}
+.sheet{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));animation:sheet .28s cubic-bezier(.2,.9,.3,1.1) both}
+.sheet-title{font-size:17px;font-weight:800}
+.sheet-sub{font-size:11px;color:var(--ink2);margin-top:3px}
+.sheet-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+.sheet-opt{padding:13px 0;text-align:center;border-radius:11px;background:#FDF0D5;color:#B45309;font-weight:700;font-size:14px;cursor:pointer}
+.sheet-cancel{margin-top:11px;text-align:center;padding:11px 0;color:var(--ink2);font-size:13px;cursor:pointer}
+.crow-mask{position:absolute;inset:0;z-index:150;background:linear-gradient(170deg,var(--night),var(--dusk) 40%,var(--coral) 78%,var(--amber));display:flex;align-items:center;justify-content:center;animation:fade .25s ease both;overflow:hidden}
+.crow-glow{position:absolute;left:50%;top:30%;width:350px;height:350px;margin:-175px 0 0 -175px;border-radius:50%;background:radial-gradient(circle,rgba(255,211,77,.4),rgba(255,211,77,0) 65%);animation:pulse 1.2s ease-in-out infinite}
+.crow-box{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 30px;text-align:center}
+.crow-kicker{margin-top:6px;font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:700}
+.crow-title{margin-top:6px;font-size:25px;font-weight:800;color:var(--paper);text-shadow:0 2px 8px rgba(43,27,78,.5)}
+.crow-note{margin-top:5px;font-size:13px;color:rgba(255,246,232,.85)}
+.crow-when{margin-top:4px;font-size:12px;color:#FFE9B0}
+.crow-actions{display:flex;flex-direction:column;gap:9px;margin-top:24px;width:100%}
+.crow-btn{padding:13px 0;border-radius:99px;text-align:center;font-weight:700;font-size:15px;background:rgba(255,246,232,.16);color:var(--paper);border:1px solid rgba(255,211,77,.5);cursor:pointer}
+.crow-btn.primary{background:linear-gradient(135deg,var(--gold),var(--amber));color:var(--dusk);border-color:transparent;box-shadow:0 5px 16px rgba(255,158,27,.45)}
+.crow-btn.ghost{background:transparent;border-color:rgba(255,246,232,.3);color:rgba(255,246,232,.8);font-size:13px}
+.undo{position:absolute;left:16px;right:16px;bottom:76px;z-index:110;display:flex;align-items:center;gap:9px;background:var(--ink);color:var(--paper);border-radius:11px;padding:11px 13px;box-shadow:0 6px 18px rgba(34,26,16,.4);animation:rise .25s ease both}
+.undo-text{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.undo-btn{color:var(--gold);font-weight:800;font-size:13px;padding:2px 6px;cursor:pointer}
+.toast{position:absolute;left:50%;top:45%;transform:translateX(-50%);z-index:200;background:rgba(34,26,16,.88);color:var(--paper);padding:10px 18px;border-radius:10px;font-size:13px;animation:fade .2s ease both;max-width:80%;text-align:center}
+
+/* edit modal */
+.modal{position:absolute;inset:0;z-index:130;background:rgba(43,27,78,.5);display:flex;align-items:flex-end;animation:fade .2s ease both}
+.modal-box{width:100%;max-height:88%;overflow-y:auto;background:var(--paper);border-radius:20px 20px 0 0;padding:0 0 calc(14px + env(safe-area-inset-bottom));animation:sheet .3s cubic-bezier(.2,.9,.3,1.1) both;scrollbar-width:thin;scrollbar-color:#E4CFA8 transparent}
+.modal-box::-webkit-scrollbar{width:6px}
+.modal-box::-webkit-scrollbar-thumb{background:#E4CFA8;border-radius:6px}
+.hero{display:flex;align-items:center;gap:11px;padding:16px 18px;background:linear-gradient(135deg,#FFF3C4,#FFE7E0);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+.hero-title{font-size:18px;font-weight:800;color:var(--dusk)}
+.hero-sub{font-size:12px;color:var(--ink2);margin-top:2px}
+.form{padding:14px 18px 0;display:flex;flex-direction:column;gap:11px}
+.field{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.label{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:8px}
+.label-sub{font-weight:400;color:var(--ink3);font-size:10px}
+.input{width:100%;border:none;outline:none;background:none;font-size:14px;color:var(--ink);font-family:inherit}
+.title-input{font-size:16px;font-weight:700}
+.note-input{min-height:48px;resize:vertical}
+.input::placeholder{color:var(--ink3)}
+.hint{margin-top:7px;font-size:11px;color:var(--ink3)}
+.urgency-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.urgency{display:flex;flex-direction:column;align-items:center;gap:1px;padding:9px 0;border-radius:10px;border:2px solid var(--line);background:var(--surface);cursor:pointer}
+.u-name{font-size:14px;font-weight:800}
+.u-desc{font-size:9px;color:var(--ink3)}
+.urgency.u1 .u-name{color:var(--u1)}.urgency.u2 .u-name{color:var(--u2)}.urgency.u3 .u-name{color:var(--u3)}.urgency.u4 .u-name{color:var(--u4)}
+.urgency.on.u1{border-color:var(--u1);background:#E4F5EC}
+.urgency.on.u2{border-color:var(--u2);background:#FDF0D5}
+.urgency.on.u3{border-color:var(--u3);background:#FFE7E0}
+.urgency.on.u4{border-color:var(--u4);background:#FBDFDB;box-shadow:0 2px 8px rgba(217,45,32,.25)}
+.dt-row{display:flex;gap:9px}
+.dt-row input{flex:1;padding:11px 0;text-align:center;border-radius:10px;background:#F6EBD7;color:var(--ink2);font-size:14px;border:none;outline:none;font-family:inherit;font-variant-numeric:tabular-nums}
+.dt-row input.strong{background:var(--dusk);color:var(--gold);font-weight:800;font-size:16px}
+.select-box{width:100%;display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-radius:10px;background:#F6EBD7;color:var(--ink);font-size:14px;font-weight:600;border:none;outline:none;font-family:inherit;cursor:pointer}
+.sub-field{margin-top:10px}
+.sub-label{font-size:11px;color:var(--ink2);margin-bottom:6px}
+.interval-row{display:flex;align-items:center;gap:9px}
+.stepper{width:32px;height:32px;border-radius:9px;background:var(--dusk);color:var(--gold);font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.step-value{min-width:36px;text-align:center;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.unit-seg{display:flex;margin-left:auto;border-radius:9px;overflow:hidden;border:1px solid var(--line)}
+.unit{padding:8px 14px;font-size:12px;background:var(--surface);color:var(--ink2);cursor:pointer}
+.unit.on{background:linear-gradient(135deg,var(--coral),var(--amber));color:var(--paper);font-weight:700}
+.sub-card{padding:14px;border-radius:14px;background:linear-gradient(135deg,rgba(47,111,237,.08),rgba(255,158,27,.12));border:1px dashed #D9C69C}
+.sub-card-title{font-size:13px;font-weight:800;color:var(--info)}
+.sub-card-sub{font-size:11px;color:var(--ink2);margin-top:3px}
+.save-bar{position:sticky;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:rgba(255,253,247,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+.save-btn{width:100%;padding:14px 0;text-align:center;border-radius:99px;background:linear-gradient(135deg,var(--coral),var(--amber));color:var(--paper);font-size:16px;font-weight:800;letter-spacing:1px;box-shadow:0 5px 14px rgba(232,68,46,.4);cursor:pointer}
+
+/* mine */
+.mine{padding:14px 16px 0}
+.profile{display:flex;align-items:center;gap:11px;padding:16px 13px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.avatar{width:60px;height:60px;flex:none;border-radius:50%;background:linear-gradient(150deg,#FFF3C4,#FFE7E0);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.profile-copy{flex:1;min-width:0}
+.nick{font-size:17px;font-weight:800;border:none;outline:none;background:none;width:100%;color:var(--ink);font-family:inherit}
+.profile-sub{font-size:11px;color:var(--ink2);margin-top:3px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:11px}
+.stat{display:flex;flex-direction:column;align-items:center;gap:1px;padding:11px 0;border-radius:11px;background:var(--surface);border:1px solid var(--line)}
+.num{font-size:20px;font-weight:800;color:var(--dusk);font-variant-numeric:tabular-nums}
+.cap{font-size:10px;color:var(--ink2)}
+.stat.warn .num{color:var(--u4)}.stat.gold .num{color:#B45309}.stat.green .num{color:var(--u1)}
+.section{margin-top:11px;padding:4px 13px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.row{display:flex;align-items:center;gap:9px;padding:13px 0;border-bottom:1px solid #F6EBD7}
+.row:last-child{border-bottom:none}
+.row-copy{flex:1;min-width:0}
+.row-title{font-size:14px;font-weight:700}
+.row-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.mini-btn{flex:none;padding:7px 15px;border-radius:99px;background:#F6EBD7;color:var(--dusk);font-size:12px;font-weight:700;cursor:pointer}
+.mini-btn.gold{background:linear-gradient(135deg,var(--gold),var(--amber));color:var(--dusk)}
+.switch{position:relative;width:44px;height:25px;flex:none;border-radius:99px;background:#E4CFA8;transition:background .2s;cursor:pointer}
+.switch.on{background:var(--coral)}
+.switch:after{content:'';position:absolute;left:3px;top:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch.on:after{left:22px}
+.section-title{margin:16px 2px 7px;font-size:13px;font-weight:800;color:var(--ink2)}
+.log-empty{padding:16px 0;font-size:12px;color:var(--ink3);text-align:center}
+.log-item{display:flex;gap:9px;padding:11px 0;border-bottom:1px solid #F6EBD7;align-items:flex-start}
+.log-item:last-child{border-bottom:none}
+.log-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex:none}
+.log-copy{flex:1;min-width:0}
+.log-title{font-size:13px;font-weight:700}
+.log-body{font-size:11px;color:var(--ink2);margin-top:2px}
+.log-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none}
+.log-channel{font-size:10px;font-weight:700}
+.log-time{font-size:10px;color:var(--ink3);font-variant-numeric:tabular-nums}
+.about{margin-top:20px;text-align:center}
+.about-name{font-size:12px;font-weight:700;color:var(--ink2)}
+.about-sub{font-size:10px;color:var(--ink3);margin-top:3px;letter-spacing:1px}
+.preview-badge{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:95;background:rgba(43,27,78,.7);color:var(--gold);font-size:9px;letter-spacing:1px;padding:2px 10px;border-radius:99px;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="phone">
+  <div class="preview-badge">H5 预览 · 与小程序同源同 API</div>
+  <div id="scroll"></div>
+  <div class="tabbar" id="tabbar"></div>
+  <div id="overlays"></div>
+</div>
+<script>
+const API = '';
+const S = {
+  token: localStorage.getItem('rr_preview_token') || '',
+  user: null, stats: null, dev: true, templateConfigured: false,
+  reminders: [], filter: 'all', sort: 'time', q: '',
+  view: 'list', muted: false, quota: 0,
+  seen: JSON.parse(localStorage.getItem('rr_preview_seen') || '{}'),
+  undo: null, snoozeId: null, moreId: null, crow: null, edit: null, toast: null
+};
+const URGENCY = {1:{label:'低',color:'#2E9E6B',soft:'#E4F5EC'},2:{label:'中',color:'#F59E0B',soft:'#FDF0D5'},3:{label:'高',color:'#FF5A36',soft:'#FFE7E0'},4:{label:'紧急',color:'#D92D20',soft:'#FBDFDB'}};
+const WEEK='日一二三四五六';
+const FILTERS=[['all','全部'],['today','今天'],['overdue','已过期'],['urgent','高优先'],['done','已结束']];
+const FREQS=[['once','单次'],['daily','每天'],['weekly','每周'],['interval','自定义间隔'],['monthly','每月']];
+const LEADS=[[0,'准时提醒'],[5,'提前 5 分钟'],[15,'提前 15 分钟'],[30,'提前 30 分钟'],[60,'提前 1 小时']];
+const CHANNEL={wechat:['微信推送','#2E9E6B'],mock:['模拟推送','#2F6FED'],inapp:['站内提醒','#B45309']};
+const pad=n=>String(n).padStart(2,'0');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function sameDay(a,b){const x=new Date(a),y=new Date(b);return x.getFullYear()===y.getFullYear()&&x.getMonth()===y.getMonth()&&x.getDate()===y.getDate()}
+function clock(ms){const d=new Date(ms);return pad(d.getHours())+':'+pad(d.getMinutes())}
+function fmtNext(ms,now){const d=new Date(ms),t=clock(ms);if(sameDay(ms,now))return '今天 '+t;if(sameDay(ms,now+864e5))return '明天 '+t;const dd=Math.round((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(new Date(now).getFullYear(),new Date(now).getMonth(),new Date(now).getDate()))/864e5);if(dd>1&&dd<7)return '周'+WEEK[d.getDay()]+' '+t;if(d.getFullYear()===new Date(now).getFullYear())return (d.getMonth()+1)+'月'+d.getDate()+'日 '+t;return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日 '+t}
+function fmtAgo(ms,now){const m=Math.floor(Math.max(0,now-ms)/6e4);if(m<1)return '刚刚到期';if(m<60)return '已过期 '+m+' 分钟';const h=Math.floor(m/60);if(h<24)return '已过期 '+h+' 小时';return '已过期 '+Math.floor(h/24)+' 天'}
+function freqLabel(r){switch(r.freq_type){case 'daily':return '每天';case 'weekly':return '每周'+WEEK[r.weekly_day];case 'interval':return '每'+r.interval_value+(r.interval_unit==='hour'?'小时':'天');case 'monthly':return '每月'+r.monthly_day+'日';default:return '单次'}}
+function greeting(now){const h=new Date(now).getHours();if(h<5)return '夜深了';if(h<9)return '早安';if(h<12)return '上午好';if(h<14)return '中午好';if(h<18)return '下午好';return '晚上好'}
+function dateLabel(now){const d=new Date(now);return (d.getMonth()+1)+'月'+d.getDate()+'日 · 周'+WEEK[d.getDay()]}
+function fmtSent(ms){const d=new Date(ms);return (d.getMonth()+1)+'-'+pad(d.getDate())+' '+clock(ms)}
+
+async function api(method,path,body){
+  const res=await fetch(API+path,{method,headers:{'Content-Type':'application/json',...(S.token?{Authorization:'Bearer '+S.token}:{})},body:body===undefined?undefined:JSON.stringify(body)});
+  const data=await res.json().catch(()=>({}));
+  if(res.status===401){await login();return api(method,path,body)}
+  if(res.status>=400)throw new Error(data.error||('请求失败 '+res.status));
+  return data;
+}
+async function login(){
+  const code=localStorage.getItem('rr_preview_code')||('dev_preview_'+Math.random().toString(36).slice(2,8));
+  localStorage.setItem('rr_preview_code',code);
+  const res=await fetch(API+'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+  const data=await res.json();
+  S.token=data.token;localStorage.setItem('rr_preview_token',data.token);
+  S.user=data.user;S.dev=data.dev;
+}
+const audio={};
+function play(name){if(S.muted)return;try{const a=audio[name]||(audio[name]=new Audio('/assets/'+name+'.wav'));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
+function toast(msg){S.toast=msg;renderOverlays();clearTimeout(toast._t);toast._t=setTimeout(()=>{S.toast=null;renderOverlays()},2200)}
+
+function rooster(size,mood){
+  const s=size/100;
+  return `<span class="rooster m-${mood}" style="width:${size}px;height:${size}px"><span class="stage" style="transform:scale(${s})">
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="tail"><div class="feather f1"></div><div class="feather f2"></div><div class="feather f3"></div></div>
+  <div class="leg l1"></div><div class="leg l2"></div><div class="body"></div><div class="wing"></div>
+  <div class="head"><div class="comb c1"></div><div class="comb c2"></div><div class="comb c3"></div><div class="skull"></div><div class="eye"></div><div class="beak-top"></div><div class="beak-bottom"></div><div class="wattle"></div></div>
+  <div class="zzz z1">z</div><div class="zzz z2">z</div><div class="spark s1"></div><div class="spark s2"></div></span></span>`;
+}
+
+async function refresh(){
+  const [list,me]=await Promise.all([
+    api('GET',`/api/reminders?filter=${S.filter}&sort=${S.sort}&q=${encodeURIComponent(S.q)}`),
+    api('GET','/api/me')
+  ]);
+  const now=list.now||Date.now();
+  S.reminders=list.reminders;S.now=now;S.user=me.user;S.stats=me.stats;S.quota=me.user.sub_quota;S.muted=me.user.muted;S.dev=me.dev;S.templateConfigured=me.templateConfigured;
+  detectFires(list.reminders,now);
+  render();
+}
+function detectFires(rows,now){
+  let crow=null,toasted=false;
+  rows.forEach(r=>{
+    if(r.last_fired_at&&(!S.seen[r.id]||S.seen[r.id]<r.last_fired_at)){
+      S.seen[r.id]=r.last_fired_at;localStorage.setItem('rr_preview_seen',JSON.stringify(S.seen));
+      if(r.urgency===4&&!crow)crow=r;
+      else if(!toasted){toasted=true;toast('叮 · '+r.title+' 到点了');play('ding')}
+    }
+  });
+  if(crow){S.crow=crow;play('crow');renderOverlays()}
+}
+
+function render(){
+  const sc=document.getElementById('scroll');
+  const top=sc.scrollTop;
+  const focused=document.activeElement&&document.activeElement.id==='q';
+  const caret=focused?document.activeElement.selectionStart:null;
+  sc.innerHTML = S.view==='list'?listView():mineView();
+  sc.scrollTop=top;
+  if(focused){const el=document.getElementById('q');if(el){el.focus();try{el.setSelectionRange(caret,caret)}catch(e){}}}
+  document.getElementById('tabbar').innerHTML=tabbar();
+  renderOverlays();
+}
+function tabbar(){
+  return `<div class="tab ${S.view==='list'?'on':''}" onclick="go('list')"><span class="ic ic-bell"><span class="clapper"></span></span><span>提醒</span></div>
+  <div class="create press" onclick="openEdit(null)"><span class="create-disc">${rooster(50,'idle')}</span><span class="create-label">新建</span></div>
+  <div class="tab ${S.view==='mine'?'on':''}" onclick="go('mine')"><span class="ic ic-person"></span><span>我的</span></div>`;
+}
+function listView(){
+  const now=S.now||Date.now();
+  const cards=S.reminders.map((r,i)=>{
+    const u=URGENCY[r.urgency]||URGENCY[2];
+    const active=r.status==='active';
+    return `<div class="card u${r.urgency} ${r.overdue?'overdue':''} ${active?'':'finished'}" style="animation-delay:${i*45}ms">
+      <div class="stripe"></div>
+      <div class="card-main">
+        <div class="card-top"><span class="title">${esc(r.title)}</span><span class="u-tag" style="background:${u.soft};color:${u.color}">${u.label}</span></div>
+        <div class="meta"><span class="when ${r.overdue?'late':''}">${r.overdue?fmtAgo(r.occurrence_at,now):fmtNext(r.occurrence_at,now)}</span>
+        <span class="tag">${freqLabel(r)}</span>${r.lead_min?`<span class="tag">提前${r.lead_min}分</span>`:''}${r.snooze_count?`<span class="tag snooze">贪睡×${r.snooze_count}</span>`:''}</div>
+        ${r.note?`<div class="note">${esc(r.note)}</div>`:''}
+      </div>
+      ${active?`<div class="card-actions">
+        <div class="act done press" onclick="complete(${r.id})"><span class="check"></span><span>完成</span></div>
+        <div class="act nap press" onclick="openSnooze(${r.id})"><span class="clock"></span><span>贪睡</span></div>
+        <div class="act more press" onclick="more(${r.id})">⋯</div>
+      </div>`:`<div class="card-actions"><span class="status-label">${r.status==='done'?'已完成':'已忽略'}</span><div class="act more press" onclick="more(${r.id})">⋯</div></div>`}
+    </div>`;
+  }).join('');
+  const body = S.reminders.length? `<div class="cards">${cards}</div>` :
+    `<div class="empty">${rooster(84,'sleep')}<div class="empty-title">这里安安静静</div><div class="empty-sub">没有匹配的提醒。新建一条，让雄鸡替你记住。</div><div class="empty-btn press" onclick="openEdit(null)">新建第一条提醒</div></div>`;
+  return `<div class="sky"><div class="sun"><div class="sun-core"></div></div><div class="ray ray1"></div><div class="ray ray2"></div><div class="ray ray3"></div><div class="cloud c1"></div><div class="cloud c2"></div>
+    <div class="sky-row"><div class="sky-mascot">${rooster(72,S.muted?'sleep':'idle')}</div>
+    <div class="sky-copy"><div class="hello">${greeting(now)}，打鸣人</div><div class="date">${dateLabel(now)}</div>
+    <div class="sky-stats"><span class="pill">${S.stats?S.stats.active:0} 进行中</span>${S.stats&&S.stats.overdue?`<span class="pill warn">${S.stats.overdue} 过期</span>`:''}<span class="pill gold">额度 ${S.quota}</span></div></div>
+    <div class="mute press" onclick="toggleMute()"><span class="spk"></span>${S.muted?'<span class="slash"></span>':'<span class="wave w1"></span><span class="wave w2"></span>'}</div></div></div>
+    <div class="toolbar"><div class="search"><span class="mag"></span><input id="q" placeholder="搜索提醒标题或备注" value="${esc(S.q)}" oninput="onSearch(this.value)"></div>
+    <select class="sortsel" onchange="onSort(this.value)">${[['time','按时间'],['urgency','按紧急度'],['created','按创建']].map(([k,l])=>`<option value="${k}" ${S.sort===k?'selected':''}>${l}</option>`).join('')}</select></div>
+    <div class="chips">${FILTERS.map(([k,l])=>`<div class="chip press ${S.filter===k?'on':''}" onclick="onFilter('${k}')">${l}</div>`).join('')}</div>
+    <div class="list">${body}</div><div class="foot-space"></div>`;
+}
+function mineView(){
+  const u=S.user||{nickname:'',muted:false,sub_quota:0};
+  return `<div class="mine">
+  <div class="profile"><div class="avatar">${rooster(56,'idle')}</div>
+    <div class="profile-copy"><input class="nick" placeholder="点击填写昵称" value="${esc(u.nickname)}" onchange="setNick(this.value)">
+    <div class="profile-sub">${S.dev?'开发模式 · 本地身份':'微信已登录'} · 数据云端同步</div></div>${rooster(44,u.muted?'sleep':'happy')}</div>
+  <div class="stats"><div class="stat"><span class="num">${S.stats.active}</span><span class="cap">进行中</span></div>
+  <div class="stat warn"><span class="num">${S.stats.overdue}</span><span class="cap">已过期</span></div>
+  <div class="stat gold"><span class="num">${S.stats.doneToday}</span><span class="cap">今日完成</span></div>
+  <div class="stat green"><span class="num">${S.stats.doneTotal}</span><span class="cap">累计完成</span></div></div>
+  <div class="section">
+    <div class="row"><div class="row-copy"><div class="row-title">打鸣声音</div><div class="row-sub">关闭后所有提示音静音，视觉提醒保留</div></div><div class="switch ${u.muted?'on':''}" onclick="toggleMute()"></div></div>
+    <div class="row"><div class="row-copy"><div class="row-title">试听打鸣</div><div class="row-sub">确认音量与音色是否符合预期</div></div><div class="mini-btn press" onclick="play('crow');toast(S.muted?'当前静音中':'喔喔喔——')">试听</div></div>
+    <div class="row"><div class="row-copy"><div class="row-title">推送额度</div><div class="row-sub">剩余 ${u.sub_quota} 次 · 每次推送消耗 1 次</div></div><div class="mini-btn gold press" onclick="topUp()">补充授权</div></div>
+    <div class="row"><div class="row-copy"><div class="row-title">清除已结束</div><div class="row-sub">已完成 / 已忽略的提醒移入回收站</div></div><div class="mini-btn press" onclick="clearDone()">清除</div></div>
+  </div>
+  <div class="section-title">推送记录</div>
+  <div class="section" id="log"><div class="log-empty">加载中…</div></div>
+  <div class="about"><div class="about-name">Rooster Reminder · 雄鸡提醒器</div><div class="about-sub">v1.0.0 · 黎明即起，既白不忘</div></div>
+  <div class="foot-space"></div></div>`;
+}
+async function loadLog(){
+  const el=document.getElementById('log');if(!el)return;
+  const {notifications}=await api('GET','/api/me/notifications?limit=20');
+  el.innerHTML=notifications.length?notifications.map(n=>{const c=CHANNEL[n.channel]||CHANNEL.inapp;return `<div class="log-item"><span class="log-dot" style="background:${c[1]}"></span><div class="log-copy"><div class="log-title">${esc(n.title)}</div><div class="log-body">${esc(n.body)}</div></div><div class="log-right"><span class="log-channel" style="color:${c[1]}">${c[0]}</span><span class="log-time">${fmtSent(n.sent_at)}</span></div></div>`}).join(''):'<div class="log-empty">还没有推送记录。到点或模拟触发后会出现在这里。</div>';
+}
+function renderOverlays(){
+  const o=document.getElementById('overlays');let h='';
+  if(S.snoozeId!=null)h+=`<div class="mask" onclick="closeSnooze()"><div class="sheet" onclick="event.stopPropagation()"><div class="sheet-title">稍后提醒</div><div class="sheet-sub">雄鸡会憋住嗓子，等你选的时间再打鸣</div><div class="sheet-grid">${[5,10,30,60].map(m=>`<div class="sheet-opt press" onclick="pickSnooze(${m})">${m===60?'1 小时':m+' 分钟'}</div>`).join('')}</div><div class="sheet-cancel press" onclick="closeSnooze()">取消</div></div></div>`;
+  if(S.crow)h+=`<div class="crow-mask"><div class="crow-glow"></div><div class="crow-box">${rooster(170,'crow')}<div class="crow-kicker">紧急提醒 · 雄鸡全力打鸣</div><div class="crow-title">${esc(S.crow.title)}</div>${S.crow.note?`<div class="crow-note">${esc(S.crow.note)}</div>`:''}<div class="crow-when">${fmtNext(S.crow.occurrence_at,S.now||Date.now())}</div><div class="crow-actions"><div class="crow-btn primary press" onclick="crowAct('complete')">立即完成</div><div class="crow-btn press" onclick="crowAct('snooze')">贪睡 10 分钟</div><div class="crow-btn ghost press" onclick="crowAct('ignore')">忽略本次</div></div></div></div>`;
+  if(S.moreId!=null){const r=S.reminders.find(x=>x.id===S.moreId)||{title:'提醒'};h+=`<div class="mask" onclick="closeMore()"><div class="sheet" onclick="event.stopPropagation()"><div class="sheet-title">${esc(r.title)}</div><div class="sheet-grid"><div class="sheet-opt press" onclick="moreEdit(${S.moreId})">编辑提醒</div><div class="sheet-opt press" style="background:#FBDFDB;color:#D92D20" onclick="moreDel(${S.moreId})">删除提醒</div></div><div class="sheet-cancel press" onclick="closeMore()">取消</div></div></div>`}
+  if(S.edit)h+=editModal();
+  if(S.undo)h+=`<div class="undo"><span class="undo-text">已删除「${esc(S.undo.title)}」</span><span class="undo-btn press" onclick="undoDelete()">撤销</span></div>`;
+  if(S.toast)h+=`<div class="toast">${esc(S.toast)}</div>`;
+  o.innerHTML=h;
+}
+function editModal(){
+  const f=S.edit;
+  return `<div class="modal" onclick="closeEdit()"><div class="modal-box" onclick="event.stopPropagation()">
+  <div class="hero">${rooster(52,'happy')}<div><div class="hero-title">${f.id?'编辑这条提醒':'告诉雄鸡一件事'}</div><div class="hero-sub">到点它替你打鸣，绝不遗漏</div></div></div>
+  <div class="form">
+    <div class="field"><div class="label">提醒标题</div><input class="input title-input" maxlength="40" placeholder="例如：吃降压药" value="${esc(f.title)}" oninput="ef('title',this.value)"></div>
+    <div class="field"><div class="label">备注 <span class="label-sub">选填</span></div><textarea class="input note-input" maxlength="200" placeholder="剂量、地点、取件码…任何细节" oninput="ef('note',this.value)">${esc(f.note)}</textarea></div>
+    <div class="field"><div class="label">紧急程度</div><div class="urgency-row">${[1,2,3,4].map(v=>`<div class="urgency u${v} press ${f.urgency===v?'on':''}" onclick="ef('urgency',${v})"><span class="u-name">${URGENCY[v].label}</span><span class="u-desc">${['从容处理','记得就好','尽快处理','全屏打鸣'][v-1]}</span></div>`).join('')}</div>${f.urgency===4?'<div class="hint">紧急档到期时，会全屏打鸣强提醒。</div>':''}</div>
+    <div class="field"><div class="label">日期与时间</div><div class="dt-row"><input type="date" value="${f.start_date}" onchange="ef('start_date',this.value)"><input type="time" class="strong" value="${f.time_str}" onchange="ef('time_str',this.value)"></div></div>
+    <div class="field"><div class="label">提醒频率</div><select class="select-box" onchange="ef('freq_type',this.value)">${FREQS.map(([k,l])=>`<option value="${k}" ${f.freq_type===k?'selected':''}>${l}</option>`).join('')}</select>
+      ${f.freq_type==='weekly'?`<div class="sub-field"><div class="sub-label">星期几</div><select class="select-box" onchange="ef('weekly_day',+this.value)">${[0,1,2,3,4,5,6].map(d=>`<option value="${d}" ${f.weekly_day===d?'selected':''}>周${WEEK[d]}</option>`).join('')}</select></div>`:''}
+      ${f.freq_type==='interval'?`<div class="sub-field"><div class="sub-label">每隔</div><div class="interval-row"><div class="stepper press" onclick="stepI(-1)">−</div><div class="step-value">${f.interval_value}</div><div class="stepper press" onclick="stepI(1)">＋</div><div class="unit-seg"><div class="unit press ${f.interval_unit==='hour'?'on':''}" onclick="ef('interval_unit','hour')">小时</div><div class="unit press ${f.interval_unit==='day'?'on':''}" onclick="ef('interval_unit','day')">天</div></div></div></div>`:''}
+      ${f.freq_type==='monthly'?`<div class="sub-field"><div class="sub-label">每月几号</div><select class="select-box" onchange="ef('monthly_day',+this.value)">${Array.from({length:31},(_,i)=>i+1).map(d=>`<option value="${d}" ${f.monthly_day===d?'selected':''}>${d} 日</option>`).join('')}</select><div class="hint">小月没有 31 日时，自动顺延到当月最后一天。</div></div>`:''}
+      ${f.freq_type!=='once'?'<div class="hint">重复提醒完成后，雄鸡自动排好下一次。</div>':''}</div>
+    <div class="field"><div class="label">推送提前量</div><select class="select-box" onchange="ef('lead_min',+this.value)">${LEADS.map(([v,l])=>`<option value="${v}" ${f.lead_min===v?'selected':''}>${l}</option>`).join('')}</select><div class="hint">微信订阅消息会在「时间 − 提前量」那一刻下发。</div></div>
+    <div class="sub-card"><div class="sub-card-title">推送额度 · 剩余 ${S.quota} 次</div><div class="sub-card-sub">${S.templateConfigured?'保存时微信会询问是否允许推送；每次允许 +1 额度。':'当前为开发模式：保存时模拟授权。上线配置模板 ID 后切换为真实微信订阅消息。'}</div></div>
+  </div>
+  <div class="save-bar"><div class="save-btn press" onclick="saveEdit()">${f.id?'保存修改':'保存并授权提醒'}</div></div>
+  </div></div>`;
+}
+
+function go(v){S.view=v;render();if(v==='mine')loadLog()}
+let searchT;function onSearch(v){S.q=v;clearTimeout(searchT);searchT=setTimeout(refresh,250)}
+function onSort(v){S.sort=v;refresh()}
+function onFilter(k){S.filter=k;refresh()}
+async function toggleMute(){S.muted=!S.muted;await api('PUT','/api/me',{muted:S.muted});render();toast(S.muted?'已静音':'声音已开启')}
+async function setNick(v){v=v.trim();if(!v)return;await api('PUT','/api/me',{nickname:v});refresh();toast('昵称已更新')}
+async function complete(id){const r=await api('POST',`/api/reminders/${id}/complete`);play('ding');toast(r.reminder.freq_type==='once'?'完成！雄鸡为你骄傲':'完成！已排下一次');refresh()}
+function openSnooze(id){S.snoozeId=id;renderOverlays()}
+function closeSnooze(){S.snoozeId=null;renderOverlays()}
+async function pickSnooze(m){const id=S.snoozeId;S.snoozeId=null;await api('POST',`/api/reminders/${id}/snooze`,{minutes:m});toast('贪睡 '+m+' 分钟');refresh()}
+function more(id){S.moreId=id;renderOverlays()}
+function closeMore(){S.moreId=null;renderOverlays()}
+function moreEdit(id){S.moreId=null;openEdit(id)}
+function moreDel(id){S.moreId=null;del(id)}
+async function del(id){const r=S.reminders.find(x=>x.id===id);await api('DELETE','/api/reminders/'+id);S.undo={id,title:r?r.title:'提醒'};S.reminders=S.reminders.filter(x=>x.id!==id);render();clearTimeout(del._t);del._t=setTimeout(()=>{S.undo=null;renderOverlays()},6000)}
+async function undoDelete(){const u=S.undo;S.undo=null;clearTimeout(del._t);await api('POST',`/api/reminders/${u.id}/restore`);toast('已恢复');refresh()}
+async function crowAct(kind){const r=S.crow;S.crow=null;renderOverlays();if(kind==='complete'){await api('POST',`/api/reminders/${r.id}/complete`).catch(()=>{});play('ding')}else if(kind==='snooze'){await api('POST',`/api/reminders/${r.id}/snooze`,{minutes:10}).catch(()=>{})}else{await api('POST',`/api/reminders/${r.id}/ignore`).catch(()=>{})}refresh()}
+async function topUp(){await api('POST','/api/me/subscribe',{count:3});toast('额度 +3（开发模拟）');refresh();if(S.view==='mine')loadLog()}
+async function clearDone(){const r=await api('POST','/api/me/clear-done');toast('已清除 '+r.cleared+' 条');refresh();if(S.view==='mine')loadLog()}
+
+function openEdit(id){
+  const r=id?S.reminders.find(x=>x.id===id):null;
+  const d=new Date();const today=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  S.edit=r?{...r}:{title:'',note:'',urgency:2,freq_type:'once',interval_value:1,interval_unit:'day',weekly_day:1,monthly_day:1,start_date:today,time_str:'09:00',lead_min:0};
+  renderOverlays();
+}
+function closeEdit(){S.edit=null;renderOverlays()}
+function ef(k,v){S.edit[k]=v;if(k==='title'||k==='note')return;renderOverlays()}
+function stepI(d){S.edit.interval_value=Math.min(99,Math.max(1,S.edit.interval_value+d));renderOverlays()}
+async function saveEdit(){
+  const f=S.edit;
+  if(!f.title.trim()){toast('给提醒起个名字吧');return}
+  if(f.freq_type==='once'){const occ=new Date(`${f.start_date}T${f.time_str}:00`).getTime();if(occ<=Date.now()){toast('单次提醒需晚于现在');return}}
+  await api('POST','/api/me/subscribe',{count:1}).catch(()=>{});
+  const payload={...f,title:f.title.trim()};
+  if(f.id)await api('PUT','/api/reminders/'+f.id,payload);else await api('POST','/api/reminders',payload);
+  S.edit=null;toast(f.id?'已保存':'雄鸡记下了');refresh();
+}
+
+(async function boot(){
+  try{ if(!S.token)await login(); else {const me=await api('GET','/api/me').catch(()=>null); if(!me){await login()} } }catch(e){await login().catch(()=>{})}
+  await refresh();
+  setInterval(()=>{if(!S.edit&&S.snoozeId==null&&S.moreId==null&&!S.crow)refresh().catch(()=>{})},8000);
+})();
+</script>
+</body>
+</html>

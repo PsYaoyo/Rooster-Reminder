@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "rooster": "/components/rooster/rooster"
+  }
+}

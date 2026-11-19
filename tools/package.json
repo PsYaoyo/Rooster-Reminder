@@ -1,0 +1,8 @@
+{
+  "name": "rooster-automation",
+  "private": true,
+  "dependencies": {
+    "miniprogram-automator": "^0.12.1",
+    "ssh2": "^1.17.0"
+  }
+}
