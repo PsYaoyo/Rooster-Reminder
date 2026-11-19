@@ -1,0 +1,7 @@
+node_modules/
+tools/node_modules/
+.env
+*.pem
+*.key
+id_rsa
+id_ed25519
