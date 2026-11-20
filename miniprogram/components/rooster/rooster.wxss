@@ -119,36 +119,65 @@
 .s1 { left: 16rpx; top: 26rpx; }
 .s2 { left: 172rpx; top: 122rpx; }
 
-/* ---- moods ---- */
+/* ---- moods: four clearly distinct expressions ---- */
+/* idle: calm, round eyes, closed beak, gentle breathing */
 .mood-idle .body { animation: rr-breathe 3.2s ease-in-out infinite; }
 .mood-idle .head { animation: rr-headbob 3.2s ease-in-out infinite; }
 .mood-idle .tail { animation: rr-sway 4s ease-in-out infinite; }
+.mood-idle .beak-top { transform: rotate(4deg); }
+.mood-idle .beak-bottom { transform: rotate(-8deg); }
 
-.mood-crow .head { animation: rr-crowtilt 0.9s ease-in-out infinite; }
-.mood-crow .beak-top { transform: rotate(-22deg); }
-.mood-crow .beak-bottom { transform: rotate(26deg); }
-.mood-crow .comb { animation: rr-comb 0.45s ease-in-out infinite; }
-.mood-crow .body { animation: rr-breathe 0.9s ease-in-out infinite; }
-.mood-crow .ring { animation: rr-ring 1.1s ease-out infinite; }
-.mood-crow .r2 { animation-delay: 0.35s; }
-.mood-crow .r3 { animation-delay: 0.7s; }
+/* crow: wide staring eye, huge open beak, head thrown back, sound rings */
+.mood-crow .head { animation: rr-crowtilt 0.7s ease-in-out infinite; }
+.mood-crow .eye { width: 23rpx; height: 25rpx; }
+.mood-crow .pupil { left: 7rpx; top: 5rpx; width: 12rpx; height: 15rpx; }
+.mood-crow .beak-top { transform: rotate(-36deg); }
+.mood-crow .beak-bottom { transform: rotate(46deg); }
+.mood-crow .comb { animation: rr-comb 0.35s ease-in-out infinite; }
+.mood-crow .body { animation: rr-breathe-strong 0.7s ease-in-out infinite; }
+.mood-crow .ring { animation: rr-ring 0.9s ease-out infinite; }
+.mood-crow .r2 { animation-delay: 0.3s; }
+.mood-crow .r3 { animation-delay: 0.6s; }
 
-.mood-happy .body, .mood-happy .head, .mood-happy .tail { animation: rr-jump 0.6s ease-in-out infinite; }
-.mood-happy .eye { height: 6rpx; top: 46rpx; border-radius: 6rpx; }
+/* happy: curved smile eyes, open laughing beak, deep blush, bounce + sparks */
+.mood-happy .body, .mood-happy .head, .mood-happy .tail { animation: rr-jump 0.55s ease-in-out infinite; }
+.mood-happy .eye {
+  top: 44rpx; height: 12rpx;
+  background: transparent;
+  border: 0;
+  border-top: 4rpx solid #4A2E18;
+  border-radius: 50% 50% 0 0;
+}
 .mood-happy .pupil, .mood-happy .pupil::after { display: none; }
-.mood-happy .spark { animation: rr-spark 0.7s ease-in-out infinite alternate; }
+.mood-happy .beak-top { transform: rotate(-12deg); }
+.mood-happy .beak-bottom { transform: rotate(24deg); }
+.mood-happy .blush { left: 46rpx; top: 58rpx; width: 34rpx; height: 20rpx; background: rgba(235, 85, 55, 0.72); }
+.mood-happy .spark { animation: rr-spark 0.6s ease-in-out infinite alternate; width: 18rpx; height: 18rpx; }
 .mood-happy .s2 { animation-delay: 0.3s; }
 
-.mood-sleep .body { animation: rr-breathe 4.6s ease-in-out infinite; }
-.mood-sleep .head { transform: rotate(12deg); }
-.mood-sleep .eye { height: 5rpx; top: 48rpx; border-radius: 5rpx; }
+/* sleep: flat closed eyes, dropped head, sealed beak, slow breathing + zzz */
+.mood-sleep .body { animation: rr-breathe 5s ease-in-out infinite; }
+.mood-sleep .head { transform: rotate(26deg); }
+.mood-sleep .eye {
+  top: 50rpx; height: 0;
+  background: transparent;
+  border: 0;
+  border-top: 4rpx solid #4A2E18;
+  border-radius: 0;
+}
 .mood-sleep .pupil, .mood-sleep .pupil::after { display: none; }
-.mood-sleep .zzz { animation: rr-zfloat 2.4s ease-in-out infinite; }
-.mood-sleep .z2 { animation-delay: 1.2s; }
+.mood-sleep .beak-top { transform: rotate(6deg); }
+.mood-sleep .beak-bottom { transform: rotate(-10deg); }
+.mood-sleep .zzz { animation: rr-zfloat 2.2s ease-in-out infinite; font-size: 38rpx; }
+.mood-sleep .z2 { animation-delay: 1.1s; }
 
 @keyframes rr-breathe {
   0%, 100% { transform: scaleY(1); }
   50% { transform: scaleY(1.035); }
+}
+@keyframes rr-breathe-strong {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  50% { transform: scaleY(1.08) translateY(-4rpx); }
 }
 @keyframes rr-headbob {
   0%, 100% { transform: translateY(0); }
@@ -159,28 +188,28 @@
   50% { transform: rotate(4deg); }
 }
 @keyframes rr-crowtilt {
-  0%, 100% { transform: rotate(0deg); }
-  45% { transform: rotate(-18deg); }
-  70% { transform: rotate(-14deg); }
+  0%, 100% { transform: rotate(-14deg); }
+  40% { transform: rotate(-30deg); }
+  70% { transform: rotate(-24deg); }
 }
 @keyframes rr-comb {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3rpx); }
+  50% { transform: translateY(-4rpx); }
 }
 @keyframes rr-ring {
   0% { opacity: 0.9; transform: scale(0.4); }
-  100% { opacity: 0; transform: scale(2.1); }
+  100% { opacity: 0; transform: scale(2.2); }
 }
 @keyframes rr-jump {
-  0%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-12rpx); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(-16rpx) rotate(-6deg); }
 }
 @keyframes rr-spark {
-  from { opacity: 0.2; transform: rotate(45deg) scale(0.7); }
-  to { opacity: 1; transform: rotate(45deg) scale(1.25); }
+  from { opacity: 0.4; transform: rotate(45deg) scale(0.8); }
+  to { opacity: 1; transform: rotate(45deg) scale(1.4); }
 }
 @keyframes rr-zfloat {
-  0% { opacity: 0; transform: translateY(6rpx); }
-  35% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(-22rpx); }
+  0% { opacity: 0.3; transform: translateY(6rpx); }
+  50% { opacity: 1; transform: translateY(-8rpx); }
+  100% { opacity: 0.3; transform: translateY(-22rpx); }
 }
