@@ -1,10 +1,10 @@
 // 环境切换：local = 本机调试；server = 阿里云轻量服务器直连（开发期）；prod = 备案 HTTPS 域名（上线）
-const ENV = 'local';
+const ENV = 'server';
 
 const BASE = {
   local: 'http://127.0.0.1:3000',
   server: 'http://8.148.93.37:3000',
-  prod: 'https://replace-with-your-icp-domain.example.com'
+  prod: 'https://bigshuai.xyz'
 }[ENV];
 
 module.exports = {
