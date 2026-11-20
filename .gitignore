@@ -5,3 +5,6 @@ tools/node_modules/
 *.key
 id_rsa
 id_ed25519
+*.db
+*.db-shm
+*.db-wal

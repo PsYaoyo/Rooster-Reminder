@@ -65,7 +65,7 @@ async function sendSubscribe(openid, { templateId, page, data }) {
     template_id: templateId,
     page: page || 'pages/index/index',
     data,
-    miniprogram_state: 'formal',
+    miniprogram_state: config.wxMiniProgramState,
     lang: 'zh_CN'
   });
 }

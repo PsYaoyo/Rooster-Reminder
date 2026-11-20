@@ -21,6 +21,7 @@ async function fire(r, user) {
   const body = pushBody(r);
   let channel = 'inapp';
   let detail = '订阅额度不足，仅站内提醒';
+  let charged = false;
 
   if (user.sub_quota > 0) {
     if (!config.devMode && config.wxTemplateId) {
@@ -37,17 +38,23 @@ async function fire(r, user) {
         if (res.errcode === 0) {
           channel = 'wechat';
           detail = '微信订阅消息已下发';
+          charged = true;
         } else {
-          detail = `微信下发失败(${res.errcode})，转站内提醒`;
+          detail = `微信下发失败(${res.errcode})，额度未消耗，转站内提醒`;
         }
       } catch (e) {
-        detail = `微信接口异常，转站内提醒`;
+        detail = '微信接口异常，额度未消耗，转站内提醒';
       }
-    } else {
+    } else if (config.devMode) {
       channel = 'mock';
-      detail = config.devMode ? '开发模式模拟推送' : '未配置模板，模拟推送';
+      detail = '开发模式模拟推送';
+      charged = true;
+    } else {
+      detail = '未配置订阅模板，仅站内提醒';
     }
-    db.prepare('UPDATE users SET sub_quota = sub_quota - 1 WHERE openid = ? AND sub_quota > 0').run(r.openid);
+    if (charged) {
+      db.prepare('UPDATE users SET sub_quota = sub_quota - 1 WHERE openid = ? AND sub_quota > 0').run(r.openid);
+    }
   }
 
   db.prepare(

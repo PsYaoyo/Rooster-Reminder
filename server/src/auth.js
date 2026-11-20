@@ -46,7 +46,7 @@ async function login(code) {
     throw err;
   }
   let openid;
-  if (config.devMode || code.startsWith('dev_')) {
+  if (config.devMode) {
     openid = devOpenid(code);
   } else {
     const wx = require('./wx');

@@ -32,8 +32,11 @@ function createApp() {
   app.use((req, res) => res.status(404).json({ error: 'not found' }));
   app.use((err, req, res, next) => {
     const status = err.status || 500;
-    if (status >= 500) console.error('[api]', err);
-    res.status(status).json({ error: err.message || 'server error' });
+    if (status >= 500) {
+      console.error('[api]', err);
+      return res.status(500).json({ error: 'server error' });
+    }
+    res.status(status).json({ error: err.message || 'request failed' });
   });
   return app;
 }

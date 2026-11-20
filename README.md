@@ -35,6 +35,7 @@ npm test             # 28 个单元 + API 测试
 | `AUTH_SECRET` | dev 占位 | 生产必须随机值（setup.sh 自动生成） |
 | `WX_APPID` / `WX_SECRET` | 空 | 空 = 开发模式（dev openid + 模拟推送 + 演示数据） |
 | `WX_TEMPLATE_ID` | 空 | 订阅消息模板 ID；字段映射见 `server/src/wx.js` |
+| `WX_MINIPROGRAM_STATE` | formal | 推送目标版本：formal / trial / developer（体验版调试用 trial） |
 | `SEED_DEMO` | true | 生产设 false |
 | `SCHEDULER_INTERVAL_MS` | 15000 | 调度tick |
 | `MAX_REMINDERS` / `MAX_SUB_QUOTA` | 200 / 50 | 每用户上限 |

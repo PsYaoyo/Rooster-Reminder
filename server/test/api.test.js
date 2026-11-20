@@ -16,6 +16,8 @@ delete process.env.WX_SECRET;
 const { createApp } = require('../src/app');
 const scheduler = require('../src/scheduler');
 const { db } = require('../src/db');
+const config = require('../src/config');
+const wx = require('../src/wx');
 
 const app = createApp();
 let server;
@@ -190,6 +192,82 @@ test('scheduler skips when quota exhausted but still marks fired', async () => {
 test('clear-done removes finished reminders', async () => {
   const { data } = await api('POST', '/api/me/clear-done');
   assert.ok(data.cleared >= 1);
+});
+
+test('production login does not accept dev_ codes', async () => {
+  const savedToken = token;
+  const savedAppId = config.wxAppId;
+  const savedSecret = config.wxSecret;
+  const savedCode2Session = wx.code2session;
+  config.wxAppId = 'wx_test_appid';
+  config.wxSecret = 'test_secret';
+  wx.code2session = async () => ({ openid: 'real_openid_1' });
+  try {
+    const { status, data } = await api('POST', '/api/login', { code: 'dev_forged_code' });
+    assert.equal(status, 200);
+    assert.equal(data.openid, 'real_openid_1');
+    assert.equal(data.dev, false);
+  } finally {
+    config.wxAppId = savedAppId;
+    config.wxSecret = savedSecret;
+    wx.code2session = savedCode2Session;
+    token = savedToken;
+  }
+});
+
+test('failed WeChat push keeps quota and logs inapp fallback', async () => {
+  const savedAppId = config.wxAppId;
+  const savedSecret = config.wxSecret;
+  const savedTemplateId = config.wxTemplateId;
+  const savedSend = wx.sendSubscribe;
+  config.wxAppId = 'wx_test_appid';
+  config.wxSecret = 'test_secret';
+  config.wxTemplateId = 'template_test';
+  wx.sendSubscribe = async () => ({ errcode: 43101, errmsg: 'user refuse' });
+  try {
+    const openid = db.prepare('SELECT openid FROM reminders WHERE id = ?').get(urgentId).openid;
+    db.prepare('UPDATE users SET sub_quota = 1 WHERE openid = ?').run(openid);
+    db.prepare('UPDATE reminders SET next_fire_at = ?, last_fired_at = NULL WHERE id = ?').run(Date.now() - 1000, urgentId);
+    await scheduler.tick();
+    const me = await api('GET', '/api/me');
+    assert.equal(me.data.user.sub_quota, 1);
+    const n = await api('GET', '/api/me/notifications?limit=5');
+    const log = n.data.notifications.find((x) => x.reminder_id === urgentId);
+    assert.equal(log.channel, 'inapp');
+    assert.match(log.body, /43101/);
+  } finally {
+    config.wxAppId = savedAppId;
+    config.wxSecret = savedSecret;
+    config.wxTemplateId = savedTemplateId;
+    wx.sendSubscribe = savedSend;
+  }
+});
+
+test('successful WeChat push consumes one quota', async () => {
+  const savedAppId = config.wxAppId;
+  const savedSecret = config.wxSecret;
+  const savedTemplateId = config.wxTemplateId;
+  const savedSend = wx.sendSubscribe;
+  config.wxAppId = 'wx_test_appid';
+  config.wxSecret = 'test_secret';
+  config.wxTemplateId = 'template_test';
+  wx.sendSubscribe = async () => ({ errcode: 0 });
+  try {
+    const openid = db.prepare('SELECT openid FROM reminders WHERE id = ?').get(urgentId).openid;
+    db.prepare('UPDATE users SET sub_quota = 2 WHERE openid = ?').run(openid);
+    db.prepare('UPDATE reminders SET next_fire_at = ?, last_fired_at = NULL WHERE id = ?').run(Date.now() - 1000, urgentId);
+    await scheduler.tick();
+    const me = await api('GET', '/api/me');
+    assert.equal(me.data.user.sub_quota, 1);
+    const n = await api('GET', '/api/me/notifications?limit=5');
+    const log = n.data.notifications.find((x) => x.reminder_id === urgentId);
+    assert.equal(log.channel, 'wechat');
+  } finally {
+    config.wxAppId = savedAppId;
+    config.wxSecret = savedSecret;
+    config.wxTemplateId = savedTemplateId;
+    wx.sendSubscribe = savedSend;
+  }
 });
 
 test('teardown', async () => {

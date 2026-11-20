@@ -17,6 +17,7 @@ const config = {
   wxAppId: process.env.WX_APPID || '',
   wxSecret: process.env.WX_SECRET || '',
   wxTemplateId: process.env.WX_TEMPLATE_ID || '',
+  wxMiniProgramState: process.env.WX_MINIPROGRAM_STATE || 'formal',
   // Dev mode: no real WeChat credentials -> deterministic dev openid + mock push + demo seed.
   get devMode() {
     return !this.wxAppId || !this.wxSecret;
