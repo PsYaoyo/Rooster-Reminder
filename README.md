@@ -60,6 +60,25 @@ npm run prod         # 用 server/.env 中的正式凭据运行（真实 code2se
 测试号不能发布。完整路径（正式个人号 → 域名 → ICP 备案 1–3 周 → HTTPS → 订阅模板 → 提审）
 见 **[deploy/README.md](deploy/README.md)**；服务器一键 provisioning：`bash deploy/setup.sh`。
 
+### 用 miniprogram-ci 上传代码（无需打开开发者工具）
+
+1. 微信公众平台 → 开发管理 → 开发设置 → **小程序代码上传**：生成「代码上传密钥」，下载后保存为 `tools/private.key`（已被 `.gitignore` 忽略）；若开启 IP 白名单，把执行上传的机器公网 IP 加进去。
+   在服务器上操作也一样：先 `git pull`，把服务器公网 IP 加入白名单，再进入 `tools/` 执行下面的命令；私钥可放任意路径，用 `WX_PRIVATE_KEY_PATH` 指向它。
+2. 安装并上传：
+   ```bash
+   cd tools
+   npm install --registry=https://registry.npmmirror.com
+   npm run upload -- 1.0.0 "首次提审"      # 版本号 + 备注
+   ```
+   也可用环境变量：`CI_VERSION=1.0.1 CI_DESC=修复推送 npm run upload`；`CI_ROBOT=1` 指定 CI 机器人（1–30）。
+3. 生成体验版二维码（真机验收用）：
+   ```bash
+   npm run preview                        # 输出 tools/preview-qr.jpg（已忽略）
+   ```
+4. 上传后到微信公众平台「版本管理」提交审核，通过后发布。
+
+脚本在 `tools/upload.js`：appid 读取根目录 `project.config.json`，私钥只从本地读取，不会进入仓库。
+
 ## 验收状态
 
 - 后端：35/35 测试通过（recurrence 引擎、一次性授权挑战码、额度扣减、推送降级、恢复、清除、调度触发）。

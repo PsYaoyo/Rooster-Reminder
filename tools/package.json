@@ -1,8 +1,13 @@
 {
   "name": "rooster-automation",
   "private": true,
+  "scripts": {
+    "upload": "node upload.js",
+    "preview": "node upload.js --preview"
+  },
   "dependencies": {
     "miniprogram-automator": "^0.12.1",
+    "miniprogram-ci": "^2.1.31",
     "ssh2": "^1.17.0"
   }
 }

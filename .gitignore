@@ -3,6 +3,7 @@ tools/node_modules/
 .env
 *.pem
 *.key
+tools/preview-qr.*
 id_rsa
 id_ed25519
 *.db
