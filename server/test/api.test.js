@@ -42,6 +42,16 @@ async function api(method, url, body) {
   return { status: res.status, data };
 }
 
+async function grantQuota(times) {
+  for (let i = 0; i < times; i++) {
+    const challenge = await api('GET', '/api/me/subscribe-challenge');
+    assert.equal(challenge.status, 200);
+    assert.ok(challenge.data.nonce);
+    const granted = await api('POST', '/api/me/subscribe', { nonce: challenge.data.nonce });
+    assert.equal(granted.status, 200);
+  }
+}
+
 test('login dev fallback issues token and creates user', async () => {
   const { status, data } = await api('POST', '/api/login', { code: 'dev_test_user_1' });
   assert.equal(status, 200);
@@ -156,9 +166,8 @@ test('delete is soft and restore brings it back', async () => {
   assert.equal(res.data.reminder.deleted, false);
 });
 
-test('subscribe grants quota and me reflects it', async () => {
-  const g = await api('POST', '/api/me/subscribe', { count: 3 });
-  assert.equal(g.data.sub_quota, 3);
+test('subscribe grants one quota per nonce and me reflects it', async () => {
+  await grantQuota(3);
   const me = await api('GET', '/api/me');
   assert.equal(me.data.user.sub_quota, 3);
   const upd = await api('PUT', '/api/me', { nickname: '打鸣人', muted: true });
@@ -262,6 +271,75 @@ test('successful WeChat push consumes one quota', async () => {
     const n = await api('GET', '/api/me/notifications?limit=5');
     const log = n.data.notifications.find((x) => x.reminder_id === urgentId);
     assert.equal(log.channel, 'wechat');
+  } finally {
+    config.wxAppId = savedAppId;
+    config.wxSecret = savedSecret;
+    config.wxTemplateId = savedTemplateId;
+    wx.sendSubscribe = savedSend;
+  }
+});
+
+test('subscribe ignores client count and rejects replay, bogus and missing nonce', async () => {
+  const openid = db.prepare('SELECT openid FROM reminders WHERE id = ?').get(urgentId).openid;
+  db.prepare('UPDATE users SET sub_quota = 0 WHERE openid = ?').run(openid);
+  const challenge = await api('GET', '/api/me/subscribe-challenge');
+  assert.equal(challenge.status, 200);
+  const nonce = challenge.data.nonce;
+  const forgedCount = await api('POST', '/api/me/subscribe', { nonce, count: 10 });
+  assert.equal(forgedCount.status, 200);
+  assert.equal(forgedCount.data.sub_quota, 1);
+  assert.equal(forgedCount.data.granted, 1);
+  assert.equal((await api('POST', '/api/me/subscribe', { nonce })).status, 400);
+  assert.equal((await api('POST', '/api/me/subscribe', { count: 9 })).status, 400);
+  assert.equal((await api('POST', '/api/me/subscribe', { nonce: 'not-a-real-nonce' })).status, 400);
+  assert.equal((await api('GET', '/api/me')).data.user.sub_quota, 1);
+});
+
+test('expired challenge cannot grant quota', async () => {
+  const openid = db.prepare('SELECT openid FROM reminders WHERE id = ?').get(urgentId).openid;
+  db.prepare('UPDATE users SET sub_quota = 0 WHERE openid = ?').run(openid);
+  const challenge = await api('GET', '/api/me/subscribe-challenge');
+  db.prepare('UPDATE subscribe_challenges SET expires_at = ? WHERE nonce = ?')
+    .run(Date.now() - 1, challenge.data.nonce);
+  const res = await api('POST', '/api/me/subscribe', { nonce: challenge.data.nonce });
+  assert.equal(res.status, 400);
+  assert.equal((await api('GET', '/api/me')).data.user.sub_quota, 0);
+});
+
+test('challenge is bound to the user who requested it', async () => {
+  const savedToken = token;
+  const challenge = await api('GET', '/api/me/subscribe-challenge');
+  try {
+    const other = await api('POST', '/api/login', { code: 'dev_other_user_2' });
+    assert.equal(other.status, 200);
+    token = other.data.token;
+    const res = await api('POST', '/api/me/subscribe', { nonce: challenge.data.nonce });
+    assert.equal(res.status, 400);
+  } finally {
+    token = savedToken;
+  }
+});
+
+test('production push is not gated by local quota', async () => {
+  const savedAppId = config.wxAppId;
+  const savedSecret = config.wxSecret;
+  const savedTemplateId = config.wxTemplateId;
+  const savedSend = wx.sendSubscribe;
+  config.wxAppId = 'wx_test_appid';
+  config.wxSecret = 'test_secret';
+  config.wxTemplateId = 'template_test';
+  wx.sendSubscribe = async () => ({ errcode: 0 });
+  try {
+    const openid = db.prepare('SELECT openid FROM reminders WHERE id = ?').get(urgentId).openid;
+    db.prepare('UPDATE users SET sub_quota = 0 WHERE openid = ?').run(openid);
+    db.prepare('UPDATE reminders SET next_fire_at = ?, last_fired_at = NULL WHERE id = ?')
+      .run(Date.now() - 1000, urgentId);
+    await scheduler.tick();
+    const n = await api('GET', '/api/me/notifications?limit=5');
+    const log = n.data.notifications.find((x) => x.reminder_id === urgentId);
+    assert.equal(log.channel, 'wechat');
+    const me = await api('GET', '/api/me');
+    assert.equal(me.data.user.sub_quota, 0);
   } finally {
     config.wxAppId = savedAppId;
     config.wxSecret = savedSecret;

@@ -100,13 +100,13 @@ Page({
       wx.requestSubscribeMessage({
         tmplIds: [config.TEMPLATE_ID],
         success: async (res) => {
-          const n = res[config.TEMPLATE_ID] === 'accept' ? 1 : 0;
-          if (n) {
-            await api.post('/api/me/subscribe', { count: n });
+          const accepted = res[config.TEMPLATE_ID] === 'accept';
+          const granted = await api.grantSubscribe(accepted);
+          if (granted) {
             wx.showToast({ title: '额度 +1', icon: 'none' });
             this.refresh();
           } else {
-            wx.showToast({ title: '未授权，额度不变', icon: 'none' });
+            wx.showToast({ title: accepted ? '授权失败，请重试' : '未授权，额度不变', icon: 'none' });
           }
         },
         fail: () => wx.showToast({ title: '授权弹窗失败', icon: 'none' })
@@ -116,16 +116,16 @@ Page({
     const ok = await new Promise((resolve) => {
       wx.showModal({
         title: '补充推送额度（开发模式）',
-        content: '模拟微信订阅授权，额度 +3。上线后此处为真实微信授权弹窗。',
+        content: '模拟微信订阅授权，额度 +1。上线后此处为真实微信授权弹窗。',
         confirmText: '模拟允许',
         success: (r) => resolve(r.confirm),
         fail: () => resolve(false)
       });
     });
     if (ok) {
-      await api.post('/api/me/subscribe', { count: 3 });
-      wx.showToast({ title: '额度 +3', icon: 'none' });
-      this.refresh();
+      const granted = await api.grantSubscribe(true);
+      wx.showToast({ title: granted ? '额度 +1' : '授权失败，请重试', icon: 'none' });
+      if (granted) this.refresh();
     }
   },
 

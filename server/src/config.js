@@ -26,6 +26,8 @@ const config = {
   schedulerIntervalMs: parseInt(process.env.SCHEDULER_INTERVAL_MS || '15000', 10),
   maxRemindersPerUser: parseInt(process.env.MAX_REMINDERS || '200', 10),
   maxSubQuota: parseInt(process.env.MAX_SUB_QUOTA || '50', 10),
+  maxSubscribeChallenges: parseInt(process.env.MAX_SUB_CHALLENGES || '5', 10),
+  subscribeChallengeTtlMs: parseInt(process.env.SUB_CHALLENGE_TTL_MS || '300000', 10),
   tokenTtlMs: 30 * 24 * 3600 * 1000
 };
 

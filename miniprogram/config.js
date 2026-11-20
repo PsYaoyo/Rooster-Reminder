@@ -11,6 +11,6 @@ module.exports = {
   ENV,
   API_BASE: BASE,
   // 正式小程序后台申请到的订阅消息模板 ID；留空时走开发模式模拟授权
-  TEMPLATE_ID: '',
+  TEMPLATE_ID: 'qgTQLzahrFDwvcBITaJ3J0DroH5vyDOrthe9X2dwvX8',
   VERSION: '1.0.0'
 };

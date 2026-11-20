@@ -55,6 +55,14 @@ CREATE TABLE IF NOT EXISTS notifications (
   sent_at INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(openid, sent_at);
+CREATE TABLE IF NOT EXISTS subscribe_challenges (
+  nonce TEXT PRIMARY KEY,
+  openid TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  consumed_at INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_sub_challenges_user ON subscribe_challenges(openid, expires_at);
 `);
 
 function getUser(openid) {

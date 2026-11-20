@@ -17,9 +17,12 @@ deploy/        阿里云 Ubuntu 24.04 一键部署 + nginx + 备份 + 备案/上
 ```bash
 cd server
 npm install --registry=https://registry.npmmirror.com   # 公司源缺包时用镜像
-npm start            # http://127.0.0.1:3000  （bootstrap 自动补 --experimental-sqlite）
-npm test             # 28 个单元 + API 测试
+npm start            # http://127.0.0.1:3000  （开发模式，bootstrap 自动补 --experimental-sqlite）
+npm test             # 单元 + API 测试
+npm run prod         # 用 server/.env 中的正式凭据运行（真实 code2session + 订阅消息）
 ```
+
+`server/.env` 已被 `.gitignore` 忽略，保存正式 AppSecret；本地 `npm start` 不读取它，保持 H5 预览的开发模式可用。
 
 - 浏览器验收：<http://127.0.0.1:3000/preview/> —— 与小程序同一套 API、同一套视觉，
   开发模式自动登录并注入 6 条演示提醒；到点模拟推送、紧急档全屏打鸣均可真实触发。
@@ -39,6 +42,7 @@ npm test             # 28 个单元 + API 测试
 | `SEED_DEMO` | true | 生产设 false |
 | `SCHEDULER_INTERVAL_MS` | 15000 | 调度tick |
 | `MAX_REMINDERS` / `MAX_SUB_QUOTA` | 200 / 50 | 每用户上限 |
+| `MAX_SUB_CHALLENGES` / `SUB_CHALLENGE_TTL_MS` | 5 / 300000 | 未完成授权挑战数上限 / 挑战有效期（毫秒） |
 
 `miniprogram/config.js`：`ENV` = `local` | `server`(http://8.148.93.37:3000) | `prod`(已备案 HTTPS 域名)；`TEMPLATE_ID` 填模板 ID 后保存时走真实 `wx.requestSubscribeMessage`。
 
@@ -48,6 +52,7 @@ npm test             # 28 个单元 + API 测试
 - 提前量 0/5/15/30/60 分钟：推送在「时间 − 提前量」下发；贪睡不消耗订阅额度。
 - 紧急度 1–4：第 4 档到点全屏打鸣 + 音效；其余 toast + 叮声。一键全局静音。
 - 生命周期：完成（重复自动排下一次）/ 贪睡 5·10·30·60 分 / 忽略；过期红色置顶；删除 6 秒内可撤销。
+- 订阅授权：服务端签发一次性挑战码，一次授权最多 +1 额度且不可重放；正式推送由微信判定订阅是否有效（43101 自动降级站内提醒），本地额度不决定真实下发。
 - 登录：`wx.login` 静默换 openid；头像昵称选填，仅本人可见。
 
 ## 上线
@@ -57,7 +62,7 @@ npm test             # 28 个单元 + API 测试
 
 ## 验收状态
 
-- 后端：28/28 测试通过（ recurrence 引擎、额度扣减、推送降级、恢复、清除、调度触发）。
+- 后端：35/35 测试通过（recurrence 引擎、一次性授权挑战码、额度扣减、推送降级、恢复、清除、调度触发）。
 - 交互：H5 预览孪生页已在真实浏览器完成闭环验收（新建/编辑/完成/贪睡/删除+撤销/搜索/筛选/排序/
   我的/静音/额度/推送记录/全屏打鸣），无控制台报错，重复刷新状态稳定。
 - 微信运行时：本环境无法无头启动开发者工具，`tools/automate.js` 供在已登录 DevTools 的本机复跑同一闭环。

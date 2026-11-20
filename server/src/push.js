@@ -15,46 +15,48 @@ function pushBody(r) {
   return `${URGENCY_TONE[r.urgency] || URGENCY_TONE[2]} · ${when}`;
 }
 
-// Fires one reminder: consumes one subscribe quota when a push channel is available.
+// Fires one reminder. In production WeChat is the authority: we always call the
+// subscribe API and only charge the local display quota after a successful send.
+// The local quota merely simulates that loop in dev mode; it never gates real pushes.
 async function fire(r, user) {
   const title = r.title;
   const body = pushBody(r);
   let channel = 'inapp';
-  let detail = '订阅额度不足，仅站内提醒';
+  let detail = '仅站内提醒';
   let charged = false;
 
-  if (user.sub_quota > 0) {
-    if (!config.devMode && config.wxTemplateId) {
-      try {
-        const wx = require('./wx');
-        const res = await wx.sendSubscribe(r.openid, {
-          templateId: config.wxTemplateId,
-          data: {
-            thing1: { value: title.slice(0, 20) },
-            time2: { value: `${fmtDate(r.occurrence_at)} ${fmtTime(r.occurrence_at)}` },
-            thing3: { value: (URGENCY_TONE[r.urgency] || '').slice(0, 20) }
-          }
-        });
-        if (res.errcode === 0) {
-          channel = 'wechat';
-          detail = '微信订阅消息已下发';
-          charged = true;
-        } else {
-          detail = `微信下发失败(${res.errcode})，额度未消耗，转站内提醒`;
+  if (!config.devMode && config.wxTemplateId) {
+    try {
+      const wx = require('./wx');
+      const res = await wx.sendSubscribe(r.openid, {
+        templateId: config.wxTemplateId,
+        data: {
+          thing1: { value: title.slice(0, 20) },
+          time2: { value: `${fmtDate(r.occurrence_at)} ${fmtTime(r.occurrence_at)}` },
+          thing3: { value: (URGENCY_TONE[r.urgency] || '').slice(0, 20) }
         }
-      } catch (e) {
-        detail = '微信接口异常，额度未消耗，转站内提醒';
+      });
+      if (res.errcode === 0) {
+        channel = 'wechat';
+        detail = '微信订阅消息已下发';
+        charged = true;
+      } else {
+        detail = `微信下发失败(${res.errcode})，额度未消耗，转站内提醒`;
       }
-    } else if (config.devMode) {
-      channel = 'mock';
-      detail = '开发模式模拟推送';
-      charged = true;
-    } else {
-      detail = '未配置订阅模板，仅站内提醒';
+    } catch (e) {
+      detail = '微信接口异常，额度未消耗，转站内提醒';
     }
-    if (charged) {
-      db.prepare('UPDATE users SET sub_quota = sub_quota - 1 WHERE openid = ? AND sub_quota > 0').run(r.openid);
-    }
+  } else if (config.devMode && user.sub_quota > 0) {
+    channel = 'mock';
+    detail = '开发模式模拟推送';
+    charged = true;
+  } else if (config.devMode) {
+    detail = '开发模式订阅额度不足，仅站内提醒';
+  } else {
+    detail = '未配置订阅模板，仅站内提醒';
+  }
+  if (charged) {
+    db.prepare('UPDATE users SET sub_quota = sub_quota - 1 WHERE openid = ? AND sub_quota > 0').run(r.openid);
   }
 
   db.prepare(

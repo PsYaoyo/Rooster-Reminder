@@ -127,28 +127,30 @@ Page({
   },
 
   async grantSubscribe() {
-    // Returns accepted grant count (0 if user declined).
+    // Returns the number of grants actually recorded by the server.
+    let accepted = false;
     if (this.data.templateConfigured && config.TEMPLATE_ID) {
-      return new Promise((resolve) => {
+      accepted = await new Promise((resolve) => {
         wx.requestSubscribeMessage({
           tmplIds: [config.TEMPLATE_ID],
-          success: (res) => resolve(res[config.TEMPLATE_ID] === 'accept' ? 1 : 0),
-          fail: () => resolve(0)
+          success: (res) => resolve(res[config.TEMPLATE_ID] === 'accept'),
+          fail: () => resolve(false)
+        });
+      });
+    } else {
+      // Dev mode: simulate one grant so the quota loop is exercisable end to end.
+      accepted = await new Promise((resolve) => {
+        wx.showModal({
+          title: '订阅授权（开发模式）',
+          content: '正式上线后这里会弹出微信订阅消息授权。现在模拟获得 1 次推送额度。',
+          confirmText: '模拟允许',
+          cancelText: '跳过',
+          success: (r) => resolve(r.confirm),
+          fail: () => resolve(false)
         });
       });
     }
-    // Dev mode: simulate one grant so the quota loop is exercisable end to end.
-    const ok = await new Promise((resolve) => {
-      wx.showModal({
-        title: '订阅授权（开发模式）',
-        content: '正式上线后这里会弹出微信订阅消息授权。现在模拟获得 1 次推送额度。',
-        confirmText: '模拟允许',
-        cancelText: '跳过',
-        success: (r) => resolve(r.confirm),
-        fail: () => resolve(false)
-      });
-    });
-    return ok ? 1 : 0;
+    return api.grantSubscribe(accepted);
   },
 
   async onSave() {
@@ -167,8 +169,7 @@ Page({
     }
     this.setData({ saving: true });
     try {
-      const grant = await this.grantSubscribe();
-      if (grant > 0) await api.post('/api/me/subscribe', { count: grant }).catch(() => {});
+      await this.grantSubscribe();
       const payload = Object.assign({}, f, { title: f.title.trim() });
       if (this.data.id) {
         await api.put('/api/reminders/' + this.data.id, payload);

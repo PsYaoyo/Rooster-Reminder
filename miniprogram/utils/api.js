@@ -64,9 +64,29 @@ async function request(method, path, data, retried) {
   return res.data;
 }
 
+// One server-issued nonce equals at most one granted push. The client can no
+// longer claim an arbitrary count; WeChat enforces real delivery at send time.
+async function grantSubscribe(accepted) {
+  if (!accepted) return 0;
+  let challenge;
+  try {
+    challenge = await request('GET', '/api/me/subscribe-challenge');
+  } catch (e) {
+    return 0;
+  }
+  if (!challenge || !challenge.nonce) return 0;
+  try {
+    await request('POST', '/api/me/subscribe', { nonce: challenge.nonce });
+    return 1;
+  } catch (e) {
+    return 0;
+  }
+}
+
 module.exports = {
   login,
   request,
+  grantSubscribe,
   get: (p) => request('GET', p),
   post: (p, d) => request('POST', p, d),
   put: (p, d) => request('PUT', p, d),

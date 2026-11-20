@@ -339,6 +339,7 @@ async function login(){
   S.token=data.token;localStorage.setItem('rr_preview_token',data.token);
   S.user=data.user;S.dev=data.dev;
 }
+async function grantSubscribe(accepted){if(!accepted)return 0;let c;try{c=await api('GET','/api/me/subscribe-challenge')}catch(e){return 0}if(!c||!c.nonce)return 0;try{await api('POST','/api/me/subscribe',{nonce:c.nonce});return 1}catch(e){return 0}}
 const audio={};
 function play(name){if(S.muted)return;try{const a=audio[name]||(audio[name]=new Audio('/assets/'+name+'.wav'));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
 function toast(msg){S.toast=msg;renderOverlays();clearTimeout(toast._t);toast._t=setTimeout(()=>{S.toast=null;renderOverlays()},2200)}
@@ -497,7 +498,7 @@ function moreDel(id){S.moreId=null;del(id)}
 async function del(id){const r=S.reminders.find(x=>x.id===id);await api('DELETE','/api/reminders/'+id);S.undo={id,title:r?r.title:'提醒'};S.reminders=S.reminders.filter(x=>x.id!==id);render();clearTimeout(del._t);del._t=setTimeout(()=>{S.undo=null;renderOverlays()},6000)}
 async function undoDelete(){const u=S.undo;S.undo=null;clearTimeout(del._t);await api('POST',`/api/reminders/${u.id}/restore`);toast('已恢复');refresh()}
 async function crowAct(kind){const r=S.crow;S.crow=null;renderOverlays();if(kind==='complete'){await api('POST',`/api/reminders/${r.id}/complete`).catch(()=>{});play('ding')}else if(kind==='snooze'){await api('POST',`/api/reminders/${r.id}/snooze`,{minutes:10}).catch(()=>{})}else{await api('POST',`/api/reminders/${r.id}/ignore`).catch(()=>{})}refresh()}
-async function topUp(){await api('POST','/api/me/subscribe',{count:3});toast('额度 +3（开发模拟）');refresh();if(S.view==='mine')loadLog()}
+async function topUp(){const n=await grantSubscribe(true);toast(n?'额度 +1（开发模拟）':'授权失败');refresh();if(S.view==='mine')loadLog()}
 async function clearDone(){const r=await api('POST','/api/me/clear-done');toast('已清除 '+r.cleared+' 条');refresh();if(S.view==='mine')loadLog()}
 
 function openEdit(id){
@@ -513,7 +514,7 @@ async function saveEdit(){
   const f=S.edit;
   if(!f.title.trim()){toast('给提醒起个名字吧');return}
   if(f.freq_type==='once'){const occ=new Date(`${f.start_date}T${f.time_str}:00`).getTime();if(occ<=Date.now()){toast('单次提醒需晚于现在');return}}
-  await api('POST','/api/me/subscribe',{count:1}).catch(()=>{});
+  await grantSubscribe(true);
   const payload={...f,title:f.title.trim()};
   if(f.id)await api('PUT','/api/reminders/'+f.id,payload);else await api('POST','/api/reminders',payload);
   S.edit=null;toast(f.id?'已保存':'雄鸡记下了');refresh();

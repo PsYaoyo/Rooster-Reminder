@@ -164,7 +164,7 @@ function pad2(n) { return String(n).padStart(2, '0'); }
   const quotaBefore = (await page.data('user')).sub_quota;
   await (await page.$('.mini-btn.gold')).tap();
   await sleep(900);
-  ok('quota top-up +3', (await page.data('user')).sub_quota === quotaBefore + 3);
+  ok('quota top-up +1', (await page.data('user')).sub_quota === quotaBefore + 1);
   ok('push log populated', (await page.data('notifications')).length >= 1);
   await shot(mp, '07-mine');
 
