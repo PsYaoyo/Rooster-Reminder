@@ -44,7 +44,7 @@ npm run prod         # 用 server/.env 中的正式凭据运行（真实 code2se
 | `MAX_REMINDERS` / `MAX_SUB_QUOTA` | 200 / 50 | 每用户上限 |
 | `MAX_SUB_CHALLENGES` / `SUB_CHALLENGE_TTL_MS` | 5 / 300000 | 未完成授权挑战数上限 / 挑战有效期（毫秒） |
 
-`miniprogram/config.js`：`ENV` = `local` | `server`(http://8.148.93.37:3000) | `prod`(已备案 HTTPS 域名)；`TEMPLATE_ID` 填模板 ID 后保存时走真实 `wx.requestSubscribeMessage`。
+`miniprogram/config.js`：`ENV` = `local` | `server` | `prod`。后端只监听 `127.0.0.1:3000`，外部一律走 nginx 的 HTTPS（`https://www.bigshuai.xyz`），不要直连 `:3000`；证书只覆盖 `www` 主机。`TEMPLATE_ID` 填模板 ID 后保存时走真实 `wx.requestSubscribeMessage`。
 
 ## 产品语义
 

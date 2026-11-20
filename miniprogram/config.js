@@ -1,10 +1,12 @@
-// 环境切换：local = 本机调试；server = 阿里云轻量服务器直连（开发期）；prod = 备案 HTTPS 域名（上线）
+// 环境切换：local = 本机调试；server = 服务器联调；prod = 正式 HTTPS 域名（上线）
+// 注意：后端只监听 127.0.0.1:3000，外部不要直连 :3000，必须走 nginx 的 443。
+// 证书只覆盖 www.bigshuai.xyz，不带 www 的主域名会报证书不受信任。
 const ENV = 'server';
 
 const BASE = {
   local: 'http://127.0.0.1:3000',
-  server: 'http://8.148.93.37:3000',
-  prod: 'https://bigshuai.xyz'
+  server: 'https://www.bigshuai.xyz',
+  prod: 'https://www.bigshuai.xyz'
 }[ENV];
 
 module.exports = {
