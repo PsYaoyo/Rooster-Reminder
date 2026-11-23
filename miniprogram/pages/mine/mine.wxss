@@ -1,20 +1,19 @@
 .page { min-height: 100vh; padding: 24rpx 32rpx 40rpx; }
 .profile { display: flex; align-items: center; gap: 16rpx; padding: 22rpx 24rpx; }
-/* fixed size + overflow hidden keeps the button's tap area equal to the visible circle;
-   the rooster's oversized internal layout box is clipped instead of enlarging the hit area */
-.avatar-btn {
+/* Visual circle is a plain view with a hard size; a transparent button overlays it
+   only to receive the chooseAvatar tap, so button defaults can't stretch the visual. */
+.avatar {
   position: relative;
   width: 96rpx;
   height: 96rpx;
   flex: none;
-  padding: 0;
   border-radius: 50%;
   overflow: hidden;
 }
-.avatar-img { width: 100%; height: 100%; display: block; border-radius: 50%; border: 3rpx solid #FFD34D; }
+.avatar-img { width: 96rpx; height: 96rpx; display: block; border-radius: 50%; border: 3rpx solid #FFD34D; }
 .avatar-fallback {
-  width: 100%;
-  height: 100%;
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
   background: linear-gradient(150deg, #FFF3C4, #FFE7E0);
   border: 3rpx solid #FFD34D;
@@ -33,10 +32,21 @@
   background: #7A2450;
   color: #FFD34D;
   font-size: 17rpx;
-  line-height: 26rpx;
+  line-height: 28rpx;
   text-align: center;
   border: 2rpx solid #FFFDF7;
   z-index: 2;
+}
+.avatar-btn {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 96rpx;
+  height: 96rpx;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  z-index: 3;
 }
 .profile-copy { flex: 1; min-width: 0; }
 .nick-input { width: 100%; font-size: 34rpx; font-weight: 800; color: #221A10; }

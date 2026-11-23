@@ -1,12 +1,13 @@
 <view class="page">
   <view class="profile card-surface">
-    <button class="avatar-btn press" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+    <view class="avatar">
       <image wx:if="{{user.avatar}}" class="avatar-img" src="{{user.avatar}}" mode="aspectFill"></image>
       <view wx:else class="avatar-fallback">
         <rooster size="{{88}}" mood="idle"></rooster>
       </view>
       <view class="avatar-edit">换</view>
-    </button>
+      <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar" aria-label="更换头像"></button>
+    </view>
     <view class="profile-copy">
       <input class="nick-input" type="nickname" placeholder="点击填写昵称" placeholder-class="ph" value="{{user.nickname}}" bindblur="onNickname" bindchange="onNickname" />
       <view class="profile-sub">{{dev ? '开发模式 · 本地身份' : '微信已登录'}} · 数据云端同步</view>
