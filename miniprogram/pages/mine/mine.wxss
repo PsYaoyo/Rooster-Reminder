@@ -29,7 +29,7 @@
   border: 3rpx solid #FFFDF7;
 }
 .profile-copy { flex: 1; min-width: 0; }
-.nick-input { font-size: 34rpx; font-weight: 800; color: #221A10; }
+.nick-input { width: 100%; font-size: 34rpx; font-weight: 800; color: #221A10; }
 .ph { color: #A79678; font-weight: 400; }
 .profile-sub { font-size: 22rpx; color: #6B5D4A; margin-top: 6rpx; }
 

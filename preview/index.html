@@ -32,62 +32,222 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .press{transition:transform .12s,opacity .12s}
 .press:active{transform:scale(.96);opacity:.85}
 
-/* rooster */
-.rooster{position:relative;display:inline-block;flex:none}
-.rooster .stage{position:absolute;left:50%;top:50%;width:100px;height:100px;margin:-50px 0 0 -50px;transform-origin:center}
-.rooster .stage>div{position:absolute}
-.feather{position:absolute;border-radius:50%;transform-origin:right center}
-.f1{left:1px;top:30px;width:38px;height:13px;background:var(--dusk);transform:rotate(-30deg)}
-.f2{left:0;top:42px;width:40px;height:13px;background:var(--coral);transform:rotate(-10deg)}
-.f3{left:3px;top:54px;width:35px;height:12px;background:var(--amber);transform:rotate(8deg)}
-.tail{left:0;top:0;width:100px;height:100px;transform-origin:40% 60%}
-.leg{position:absolute;width:4px;height:13px;background:#B45309;border-radius:2px}
-.leg:after{content:'';position:absolute;left:-3px;bottom:0;width:11px;height:3px;background:#B45309;border-radius:2px}
-.l1{left:41px;top:86px}.l2{left:55px;top:86px}
-.body{left:20px;top:41px;width:56px;height:48px;border-radius:50%;background:linear-gradient(135deg,#FFB020,var(--coral));transform-origin:center bottom;box-shadow:inset -4px -5px 0 rgba(122,36,80,.18)}
-.wing{left:31px;top:54px;width:28px;height:21px;border-radius:50%;background:#C2402A;transform:rotate(-18deg);box-shadow:inset 2px 2px 0 rgba(255,211,77,.35)}
-.head{left:52px;top:17px;width:40px;height:40px;transform-origin:22% 88%}
-.head>div{position:absolute}
-.skull{left:4px;top:6px;width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--amber))}
-.comb{background:var(--u4);border-radius:50%}
-.comb.c1{left:5px;top:-3px;width:10px;height:13px}.comb.c2{left:13px;top:-6px;width:11px;height:16px}.comb.c3{left:22px;top:-3px;width:10px;height:13px}
-.eye{left:20px;top:16px;width:5px;height:5px;background:var(--ink);border-radius:50%}
-.beak-top{left:33px;top:17px;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:13px solid #FFB020;transform-origin:left center}
-.beak-bottom{left:33px;top:21px;width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:11px solid #E8890C;transform-origin:left center}
-.wattle{left:30px;top:27px;width:7px;height:10px;background:var(--u4);border-radius:50%}
-.ring{left:75px;top:8px;width:26px;height:26px;border:2px solid rgba(255,211,77,.9);border-radius:50%;opacity:0}
-.zzz{font-size:15px;font-weight:800;color:var(--dusk);opacity:0}
-.z1{left:76px;top:2px}.z2{left:86px;top:-6px;font-size:11px}
-.spark{width:6px;height:6px;background:var(--gold);transform:rotate(45deg);opacity:0}
-.s1{left:9px;top:14px}.s2{left:86px;top:59px}
-.m-idle .body{animation:breathe 3.2s ease-in-out infinite}
-.m-idle .head{animation:headbob 3.2s ease-in-out infinite}
-.m-idle .tail{animation:sway 4s ease-in-out infinite}
-.m-crow .head{animation:crowtilt .9s ease-in-out infinite}
-.m-crow .beak-top{transform:rotate(-16deg)}
-.m-crow .beak-bottom{transform:rotate(20deg)}
-.m-crow .comb{animation:comb .45s ease-in-out infinite}
-.m-crow .body{animation:breathe .9s ease-in-out infinite}
-.m-crow .ring{animation:ring 1.1s ease-out infinite}
-.m-crow .r2{animation-delay:.35s}.m-crow .r3{animation-delay:.7s}
-.m-happy .body,.m-happy .head,.m-happy .tail{animation:jump .6s ease-in-out infinite}
-.m-happy .eye{height:2px;border-radius:2px;transform:translateY(2px)}
-.m-happy .spark{animation:spark .7s ease-in-out infinite alternate}
-.m-happy .s2{animation-delay:.3s}
-.m-sleep .body{animation:breathe 4.6s ease-in-out infinite}
-.m-sleep .head{transform:rotate(10deg)}
-.m-sleep .eye{height:2px;border-radius:2px;transform:translateY(2px)}
-.m-sleep .zzz{animation:zfloat 2.4s ease-in-out infinite}
-.m-sleep .z2{animation-delay:1.2s}
-@keyframes breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.035)}}
-@keyframes headbob{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
-@keyframes sway{0%,100%{transform:rotate(0)}50%{transform:rotate(4deg)}}
-@keyframes crowtilt{0%,100%{transform:rotate(0)}45%{transform:rotate(-18deg)}70%{transform:rotate(-14deg)}}
-@keyframes comb{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
-@keyframes ring{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(2.1)}}
-@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
-@keyframes spark{from{opacity:.2;transform:rotate(45deg) scale(.7)}to{opacity:1;transform:rotate(45deg) scale(1.25)}}
-@keyframes zfloat{0%{opacity:0;transform:translateY(3px)}35%{opacity:1}100%{opacity:0;transform:translateY(-11px)}}
+/* rooster (synced from miniprogram component) */
+.rooster {
+  position: relative;
+  display: inline-block;
+  overflow: visible;
+}
+.stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100px;
+  height: 100px;
+  margin: -50px 0 0 -50px;
+  transform-origin: center center;
+}
+.stage > div { position: absolute; }
+
+/* ---- tail feathers ---- */
+.tail { left: 0; top: 0; width: 100px; height: 100px; transform-origin: 38% 62%; }
+.feather { position: absolute; border-radius: 50%; transform-origin: right center; }
+.f1 { left: 2px; top: 29px; width: 35px; height: 12px; background: linear-gradient(90deg, #C9661F, #F0A030); transform: rotate(-30deg); }
+.f2 { left: 0px; top: 41px; width: 39px; height: 13px; background: linear-gradient(90deg, #D8342A, #F08030); transform: rotate(-9deg); }
+.f3 { left: 4px; top: 53px; width: 33px; height: 11px; background: linear-gradient(90deg, #E8761E, #FFB84A); transform: rotate(10deg); }
+
+/* ---- legs ---- */
+.legs { left: 0; top: 0; width: 100px; height: 100px; }
+.leg { position: absolute; width: 4.5px; height: 12px; background: #E8891A; border-radius: 2.5px; }
+.leg::after {
+  content: '';
+  position: absolute;
+  left: -5px;
+  bottom: -1px;
+  width: 14px;
+  height: 3.5px;
+  background: #E8891A;
+  border-radius: 2px;
+  box-shadow: 0 3.5px 0 -0.5px #E8891A;
+}
+.l1 { left: 44px; top: 88px; }
+.l2 { left: 60px; top: 88px; }
+
+/* ---- body ---- */
+.body {
+  left: 13px; top: 32px; width: 69px; height: 59px;
+  border-radius: 50% 50% 48% 48% / 54% 54% 46% 46%;
+  background: linear-gradient(155deg, #FFD05A 0%, #FFAB33 48%, #EE7C1E 100%);
+  box-shadow: inset -5px -6px 0 rgba(160, 66, 18, 0.14),
+              inset 3px 4px 0 rgba(255, 236, 160, 0.4);
+  transform-origin: center bottom;
+}
+.belly {
+  left: 17px; top: 20px; width: 44px; height: 29px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 40% 30%, rgba(255, 236, 170, 0.75), rgba(255, 205, 110, 0) 70%);
+}
+.wing {
+  left: 11px; top: 17px; width: 39px; height: 29px;
+  border-radius: 50% 50% 46% 54%;
+  background: linear-gradient(140deg, #FFC24A, #F0922A);
+  border: 1px solid #CE6C22;
+  transform: rotate(-14deg);
+  box-shadow: inset 2px 2px 0 rgba(255, 232, 160, 0.5);
+}
+.wing-line { position: absolute; border-bottom: 1.5px solid #C96A22; border-radius: 0 0 50% 50%; }
+.wla { left: 6px; top: 7px; width: 26px; height: 13px; transform: rotate(-10deg); }
+.wlb { left: 8px; top: 12px; width: 20px; height: 10px; transform: rotate(-6deg); }
+
+/* ---- head ---- */
+.head { left: 42px; top: 17px; width: 46px; height: 46px; transform-origin: 22% 88%; }
+.head > div { position: absolute; }
+.skull {
+  left: 0; top: 0; width: 46px; height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #FFD45E 0%, #FFAE35 55%, #F28A22 100%);
+  box-shadow: inset -3px -4px 0 rgba(160, 66, 18, 0.12),
+              inset 2.5px 3px 0 rgba(255, 238, 170, 0.45);
+}
+.comb { background: #D8342A; border-radius: 52% 52% 45% 45%; box-shadow: inset -1.5px -2px 0 rgba(140, 30, 20, 0.25); }
+.c1 { left: 6px; top: -6px; width: 13px; height: 15px; transform: rotate(-10deg); }
+.c2 { left: 17px; top: -11px; width: 15px; height: 19px; }
+.c3 { left: 29px; top: -6px; width: 13px; height: 15px; transform: rotate(10deg); }
+.eye {
+  left: 30px; top: 19px; width: 9px; height: 10px;
+  background: #FFFDF7;
+  border: 1px solid #A0522D;
+  border-radius: 50%;
+}
+.pupil { left: 2.5px; top: 1.5px; width: 5px; height: 6.5px; background: #3A2416; border-radius: 50%; }
+.pupil::after { content: ''; position: absolute; left: 1px; top: 1px; width: 2px; height: 2px; background: #FFF; border-radius: 50%; }
+.blush { left: 25px; top: 30px; width: 14px; height: 8.5px; background: rgba(244, 116, 74, 0.5); border-radius: 50%; }
+.beak-top {
+  left: 42px; top: 22px; width: 0; height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 14px solid #FFC02E;
+  transform-origin: left center;
+}
+.beak-bottom {
+  left: 42px; top: 29px; width: 0; height: 0;
+  border-top: 4.5px solid transparent;
+  border-bottom: 4.5px solid transparent;
+  border-left: 13px solid #F0971A;
+  transform-origin: left center;
+}
+.wattle { left: 39px; top: 37px; width: 9px; height: 12px; background: #D8342A; border-radius: 50%; box-shadow: inset -1.5px -1.5px 0 rgba(140, 30, 20, 0.25); }
+
+/* ---- crow sound rings ---- */
+.ring {
+  left: 74px; top: 10px; width: 28px; height: 28px;
+  border: 2px solid rgba(255, 196, 74, 0.95);
+  border-radius: 50%;
+  opacity: 0;
+}
+/* sleep zzz */
+.zzz { font-size: 16px; font-weight: 800; color: #A0522D; opacity: 0; }
+.z1 { left: 78px; top: 0px; }
+.z2 { left: 89px; top: -8px; font-size: 12px; }
+/* happy sparks */
+.spark { width: 7px; height: 7px; background: #FFD34D; transform: rotate(45deg); opacity: 0; border-radius: 1px; }
+.s1 { left: 8px; top: 13px; }
+.s2 { left: 86px; top: 61px; }
+
+/* ---- moods: four clearly distinct expressions ---- */
+/* idle: calm, round eyes, closed beak, gentle breathing */
+.m-idle .body { animation: rr-breathe 3.2s ease-in-out infinite; }
+.m-idle .head { animation: rr-headbob 3.2s ease-in-out infinite; }
+.m-idle .tail { animation: rr-sway 4s ease-in-out infinite; }
+.m-idle .beak-top { transform: rotate(4deg); }
+.m-idle .beak-bottom { transform: rotate(-8deg); }
+
+/* crow: wide staring eye, huge open beak, head thrown back, sound rings */
+.m-crow .head { animation: rr-crowtilt 0.7s ease-in-out infinite; }
+.m-crow .eye { width: 11.5px; height: 12.5px; }
+.m-crow .pupil { left: 3.5px; top: 2.5px; width: 6px; height: 7.5px; }
+.m-crow .beak-top { transform: rotate(-36deg); }
+.m-crow .beak-bottom { transform: rotate(46deg); }
+.m-crow .comb { animation: rr-comb 0.35s ease-in-out infinite; }
+.m-crow .body { animation: rr-breathe-strong 0.7s ease-in-out infinite; }
+.m-crow .ring { animation: rr-ring 0.9s ease-out infinite; }
+.m-crow .r2 { animation-delay: 0.3s; }
+.m-crow .r3 { animation-delay: 0.6s; }
+
+/* happy: curved smile eyes, open laughing beak, deep blush, bounce + sparks */
+.m-happy .body, .m-happy .head, .m-happy .tail { animation: rr-jump 0.55s ease-in-out infinite; }
+.m-happy .eye {
+  top: 22px; height: 6px;
+  background: transparent;
+  border: 0;
+  border-top: 2px solid #4A2E18;
+  border-radius: 50% 50% 0 0;
+}
+.m-happy .pupil, .m-happy .pupil::after { display: none; }
+.m-happy .beak-top { transform: rotate(-12deg); }
+.m-happy .beak-bottom { transform: rotate(24deg); }
+.m-happy .blush { left: 23px; top: 29px; width: 17px; height: 10px; background: rgba(235, 85, 55, 0.72); }
+.m-happy .spark { animation: rr-spark 0.6s ease-in-out infinite alternate; width: 9px; height: 9px; }
+.m-happy .s2 { animation-delay: 0.3s; }
+
+/* sleep: flat closed eyes, dropped head, sealed beak, slow breathing + zzz */
+.m-sleep .body { animation: rr-breathe 5s ease-in-out infinite; }
+.m-sleep .head { transform: rotate(26deg); }
+.m-sleep .eye {
+  top: 25px; height: 0;
+  background: transparent;
+  border: 0;
+  border-top: 2px solid #4A2E18;
+  border-radius: 0;
+}
+.m-sleep .pupil, .m-sleep .pupil::after { display: none; }
+.m-sleep .beak-top { transform: rotate(6deg); }
+.m-sleep .beak-bottom { transform: rotate(-10deg); }
+.m-sleep .zzz { animation: rr-zfloat 2.2s ease-in-out infinite; font-size: 19px; }
+.m-sleep .z2 { animation-delay: 1.1s; }
+
+@keyframes rr-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.035); }
+}
+@keyframes rr-breathe-strong {
+  0%, 100% { transform: scaleY(1) translateY(0); }
+  50% { transform: scaleY(1.08) translateY(-2px); }
+}
+@keyframes rr-headbob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+@keyframes rr-sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes rr-crowtilt {
+  0%, 100% { transform: rotate(-14deg); }
+  40% { transform: rotate(-30deg); }
+  70% { transform: rotate(-24deg); }
+}
+@keyframes rr-comb {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes rr-ring {
+  0% { opacity: 0.9; transform: scale(0.4); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+@keyframes rr-jump {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(-8px) rotate(-6deg); }
+}
+@keyframes rr-spark {
+  from { opacity: 0.4; transform: rotate(45deg) scale(0.8); }
+  to { opacity: 1; transform: rotate(45deg) scale(1.4); }
+}
+@keyframes rr-zfloat {
+  0% { opacity: 0.3; transform: translateY(3px); }
+  50% { opacity: 1; transform: translateY(-4px); }
+  100% { opacity: 0.3; transform: translateY(-11px); }
+}
 @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
@@ -347,13 +507,19 @@ function toast(msg){S.toast=msg;renderOverlays();clearTimeout(toast._t);toast._t
 function rooster(size,mood){
   const s=size/100;
   return `<span class="rooster m-${mood}" style="width:${size}px;height:${size}px"><span class="stage" style="transform:scale(${s})">
-  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
   <div class="tail"><div class="feather f1"></div><div class="feather f2"></div><div class="feather f3"></div></div>
-  <div class="leg l1"></div><div class="leg l2"></div><div class="body"></div><div class="wing"></div>
-  <div class="head"><div class="comb c1"></div><div class="comb c2"></div><div class="comb c3"></div><div class="skull"></div><div class="eye"></div><div class="beak-top"></div><div class="beak-bottom"></div><div class="wattle"></div></div>
-  <div class="zzz z1">z</div><div class="zzz z2">z</div><div class="spark s1"></div><div class="spark s2"></div></span></span>`;
+  <div class="legs"><div class="leg l1"></div><div class="leg l2"></div></div>
+  <div class="body"><div class="belly"></div><div class="wing"></div><div class="wing-line wla"></div><div class="wing-line wlb"></div></div>
+  <div class="head">
+    <div class="comb c1"></div><div class="comb c2"></div><div class="comb c3"></div>
+    <div class="skull"></div><div class="blush"></div>
+    <div class="eye"><div class="pupil"></div></div>
+    <div class="beak-top"></div><div class="beak-bottom"></div><div class="wattle"></div>
+  </div>
+  <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+  <div class="zzz z1">z</div><div class="zzz z2">z</div>
+  <div class="spark s1"></div><div class="spark s2"></div></span></span>`;
 }
-
 async function refresh(){
   const [list,me]=await Promise.all([
     api('GET',`/api/reminders?filter=${S.filter}&sort=${S.sort}&q=${encodeURIComponent(S.q)}`),

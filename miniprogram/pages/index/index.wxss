@@ -67,7 +67,7 @@
   border-radius: 50%;
 }
 .sky-copy { flex: 1; min-width: 0; }
-.hello { font-size: 42rpx; font-weight: 800; color: #FFF6E8; letter-spacing: 1rpx; text-shadow: 0 2rpx 8rpx rgba(43, 27, 78, 0.4); }
+.hello { font-size: 42rpx; font-weight: 800; color: #FFF6E8; letter-spacing: 1rpx; text-shadow: 0 2rpx 8rpx rgba(43, 27, 78, 0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .date { font-size: 24rpx; color: rgba(255, 246, 232, 0.85); margin-top: 4rpx; }
 .sky-stats { display: flex; gap: 10rpx; margin-top: 14rpx; flex-wrap: wrap; }
 .pill {
@@ -250,7 +250,7 @@
 .title { font-size: 30rpx; font-weight: 700; color: #221A10; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .u-tag { padding: 2rpx 14rpx; border-radius: 999rpx; font-size: 20rpx; font-weight: 700; flex: none; }
 .meta { display: flex; align-items: center; gap: 10rpx; margin-top: 10rpx; flex-wrap: wrap; }
-.when { font-size: 24rpx; font-weight: 700; color: #7A2450; font-variant-numeric: tabular-nums; }
+.when { font-size: 24rpx; font-weight: 700; color: #7A2450; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .when.late { color: #D92D20; }
 .tag.snooze { background: #EFE3F7; color: #7A2450; }
 .note { margin-top: 8rpx; font-size: 22rpx; color: #6B5D4A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
