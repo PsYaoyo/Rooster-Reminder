@@ -19,14 +19,21 @@ function bad(msg) {
 
 function validate(body, existing) {
   const r = { ...existing, ...body };
-  if (!r.title || !String(r.title).trim()) throw bad('标题不能为空');
-  r.title = String(r.title).trim().slice(0, 40);
+  if (typeof r.title !== 'string' || !r.title.trim()) throw bad('标题不能为空');
+  r.title = r.title.trim().slice(0, 40);
+  if (r.note !== undefined && r.note !== null && typeof r.note !== 'string') throw bad('备注格式无效');
   r.note = String(r.note || '').slice(0, 200);
   r.urgency = Number(r.urgency);
   if (![1, 2, 3, 4].includes(r.urgency)) throw bad('紧急程度无效');
   if (!FREQS.includes(r.freq_type)) throw bad('提醒频率无效');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(r.start_date || '')) throw bad('日期格式无效');
+  // Reject impossible dates like 2030-02-30 that Date would silently roll over.
+  const [yy, mm, dd] = r.start_date.split('-').map(Number);
+  const check = new Date(yy, mm - 1, dd);
+  if (check.getFullYear() !== yy || check.getMonth() !== mm - 1 || check.getDate() !== dd) throw bad('日期无效');
   if (!/^\d{2}:\d{2}$/.test(r.time_str || '')) throw bad('时间格式无效');
+  const [hh, mi] = r.time_str.split(':').map(Number);
+  if (hh < 0 || hh > 23 || mi < 0 || mi > 59) throw bad('时间无效');
   r.lead_min = Number(r.lead_min || 0);
   if (!LEADS.includes(r.lead_min)) throw bad('提前量无效');
   r.interval_value = Math.min(99, Math.max(1, Number(r.interval_value || 1)));
@@ -61,9 +68,12 @@ router.get('/', (req, res) => {
     rows = rows.filter((r) => r.urgency >= 3 && r.status === 'active');
   } else if (filter === 'done') {
     rows = rows.filter((r) => r.status !== 'active');
-  } else {
+  } else if (filter === 'active') {
     rows = rows.filter((r) => r.status === 'active');
   }
+  // filter === 'all' keeps every non-deleted row (active, done and ignored).
+  // The default 'all' also falls through here so the UI's "全部" tab and edit lookup
+  // can see finished reminders.
   if (q) {
     const needle = String(q).toLowerCase();
     rows = rows.filter((r) => r.title.toLowerCase().includes(needle) || r.note.toLowerCase().includes(needle));
@@ -106,12 +116,16 @@ router.put('/:id', (req, res) => {
   const occ = sched.firstOccurrence(r, now);
   if (r.freq_type === 'once' && occ <= now && row.status === 'active') throw bad('单次提醒的时间必须晚于现在');
   const fire = sched.fireAt(occ, r.lead_min);
+  // Editing a finished (done/ignored) reminder with a new schedule means the user
+  // wants it active again; otherwise it stays hidden in every active list forever.
+  const nextStatus = 'active';
   db.prepare(`
     UPDATE reminders SET title=?, note=?, urgency=?, freq_type=?, interval_value=?, interval_unit=?,
       weekly_day=?, monthly_day=?, time_str=?, start_date=?, lead_min=?, occurrence_at=?, next_fire_at=?,
-      last_fired_at=NULL, updated_at=? WHERE id=?
+      status=?, last_fired_at=NULL, updated_at=? WHERE id=?
   `).run(r.title, r.note, r.urgency, r.freq_type, r.interval_value, r.interval_unit,
-    r.weekly_day ?? null, r.monthly_day ?? null, r.time_str, r.start_date, r.lead_min, occ, fire, now, row.id);
+    r.weekly_day ?? null, r.monthly_day ?? null, r.time_str, r.start_date, r.lead_min, occ, fire,
+    nextStatus, now, row.id);
   res.json({ reminder: publicReminder(db.prepare('SELECT * FROM reminders WHERE id = ?').get(row.id)) });
 });
 

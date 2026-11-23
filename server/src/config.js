@@ -14,6 +14,9 @@ const config = {
   host: process.env.HOST || '0.0.0.0',
   dbFile: process.env.DB_FILE || path.join(__dirname, '..', 'data', 'rooster.db'),
   secret: process.env.AUTH_SECRET || 'rooster-dev-secret-change-me',
+  // The fallback secret is only acceptable in dev mode. In production a shared,
+  // publicly-known secret would let anyone forge tokens for any openid.
+  usingDefaultSecret: !process.env.AUTH_SECRET,
   wxAppId: process.env.WX_APPID || '',
   wxSecret: process.env.WX_SECRET || '',
   wxTemplateId: process.env.WX_TEMPLATE_ID || '',

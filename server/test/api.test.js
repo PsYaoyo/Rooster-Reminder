@@ -348,6 +348,57 @@ test('production push is not gated by local quota', async () => {
   }
 });
 
+test('filter=all returns finished reminders while done returns only finished', async () => {
+  const future = new Date(Date.now() + 4 * 864e5);
+  const p = (n) => String(n).padStart(2, '0');
+  const date = `${future.getFullYear()}-${p(future.getMonth() + 1)}-${p(future.getDate())}`;
+  const created = await api('POST', '/api/reminders', {
+    title: '待完成的筛选测试', freq_type: 'once', start_date: date, time_str: '09:00', urgency: 2
+  });
+  const id = created.data.reminder.id;
+  await api('POST', `/api/reminders/${id}/complete`);
+  const all = await api('GET', '/api/reminders?filter=all');
+  assert.ok(all.data.reminders.some((r) => r.id === id && r.status === 'done'));
+  const done = await api('GET', '/api/reminders?filter=done');
+  assert.ok(done.data.reminders.every((r) => r.status !== 'active'));
+  assert.ok(done.data.reminders.some((r) => r.id === id));
+});
+
+test('editing a finished reminder reactivates it', async () => {
+  const future = new Date(Date.now() + 5 * 864e5);
+  const p = (n) => String(n).padStart(2, '0');
+  const date = `${future.getFullYear()}-${p(future.getMonth() + 1)}-${p(future.getDate())}`;
+  const created = await api('POST', '/api/reminders', {
+    title: '完成后再编辑', freq_type: 'once', start_date: date, time_str: '09:00', urgency: 2
+  });
+  const id = created.data.reminder.id;
+  await api('POST', `/api/reminders/${id}/complete`);
+  const { status, data } = await api('PUT', `/api/reminders/${id}`, {
+    title: '复活的单次', freq_type: 'once', start_date: date, time_str: '09:00'
+  });
+  assert.equal(status, 200);
+  assert.equal(data.reminder.status, 'active');
+  const list = await api('GET', '/api/reminders');
+  assert.ok(list.data.reminders.some((r) => r.id === id));
+});
+
+test('rejects non-string title/note and impossible dates', async () => {
+  const base = { freq_type: 'once', start_date: '2030-01-01', time_str: '09:00', urgency: 2 };
+  assert.equal((await api('POST', '/api/reminders', { ...base, title: { a: 1 } })).status, 400);
+  assert.equal((await api('POST', '/api/reminders', { ...base, title: 'x', note: { a: 1 } })).status, 400);
+  assert.equal((await api('POST', '/api/reminders', { ...base, title: 'x', start_date: '2030-02-30' })).status, 400);
+  assert.equal((await api('POST', '/api/reminders', { ...base, title: 'x', time_str: '25:00' })).status, 400);
+  assert.equal((await api('POST', '/api/reminders', { ...base, title: 'x' })).status, 201);
+});
+
+test('production refuses to start with the public default secret', () => {
+  const fs2 = require('fs');
+  const path2 = require('path');
+  const indexPath = path2.join(__dirname, '..', 'src', 'index.js');
+  const src = fs2.readFileSync(indexPath, 'utf8');
+  assert.match(src, /AUTH_SECRET must be set in production/);
+});
+
 test('teardown', async () => {
   scheduler.stop();
   await new Promise((r) => server.close(r));
