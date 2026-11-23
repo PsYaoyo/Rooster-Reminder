@@ -1,13 +1,13 @@
 .page { min-height: 100vh; padding: 24rpx 32rpx 40rpx; }
-.profile { display: flex; align-items: center; gap: 20rpx; padding: 28rpx 24rpx; }
-.avatar-btn { position: relative; width: 120rpx; height: 120rpx; flex: none; border-radius: 50%; overflow: visible; }
-.avatar-img { width: 120rpx; height: 120rpx; border-radius: 50%; border: 4rpx solid #FFD34D; }
+.profile { display: flex; align-items: center; gap: 16rpx; padding: 22rpx 24rpx; }
+.avatar-btn { position: relative; width: 96rpx; height: 96rpx; flex: none; border-radius: 50%; overflow: visible; }
+.avatar-img { width: 96rpx; height: 96rpx; border-radius: 50%; border: 3rpx solid #FFD34D; }
 .avatar-fallback {
-  width: 120rpx;
-  height: 120rpx;
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
   background: linear-gradient(150deg, #FFF3C4, #FFE7E0);
-  border: 4rpx solid #FFD34D;
+  border: 3rpx solid #FFD34D;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,12 +17,12 @@
   position: absolute;
   right: -4rpx;
   bottom: -4rpx;
-  width: 40rpx;
-  height: 40rpx;
+  width: 34rpx;
+  height: 34rpx;
   border-radius: 50%;
   background: #7A2450;
   color: #FFD34D;
-  font-size: 20rpx;
+  font-size: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;

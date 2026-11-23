@@ -3,7 +3,7 @@
     <button class="avatar-btn press" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
       <image wx:if="{{user.avatar}}" class="avatar-img" src="{{user.avatar}}" mode="aspectFill"></image>
       <view wx:else class="avatar-fallback">
-        <rooster size="{{110}}" mood="idle"></rooster>
+        <rooster size="{{88}}" mood="idle"></rooster>
       </view>
       <view class="avatar-edit">换</view>
     </button>

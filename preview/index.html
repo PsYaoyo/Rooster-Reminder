@@ -411,8 +411,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 
 /* mine */
 .mine{padding:14px 16px 0}
-.profile{display:flex;align-items:center;gap:11px;padding:16px 13px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
-.avatar{width:60px;height:60px;flex:none;border-radius:50%;background:linear-gradient(150deg,#FFF3C4,#FFE7E0);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.profile{display:flex;align-items:center;gap:9px;padding:12px 13px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.avatar{width:48px;height:48px;flex:none;border-radius:50%;background:linear-gradient(150deg,#FFF3C4,#FFE7E0);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .profile-copy{flex:1;min-width:0}
 .nick{font-size:17px;font-weight:800;border:none;outline:none;background:none;width:100%;color:var(--ink);font-family:inherit}
 .profile-sub{font-size:11px;color:var(--ink2);margin-top:3px}
@@ -593,7 +593,7 @@ function listView(){
 function mineView(){
   const u=S.user||{nickname:'',muted:false,sub_quota:0};
   return `<div class="mine">
-  <div class="profile"><div class="avatar">${rooster(56,'idle')}</div>
+  <div class="profile"><div class="avatar">${rooster(44,'idle')}</div>
     <div class="profile-copy"><input class="nick" placeholder="点击填写昵称" value="${esc(u.nickname)}" onchange="setNick(this.value)">
     <div class="profile-sub">${S.dev?'开发模式 · 本地身份':'微信已登录'} · 数据云端同步</div></div>${rooster(44,u.muted?'sleep':'happy')}</div>
   <div class="stats"><div class="stat"><span class="num">${S.stats.active}</span><span class="cap">进行中</span></div>
