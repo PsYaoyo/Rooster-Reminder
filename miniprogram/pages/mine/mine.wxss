@@ -1,13 +1,12 @@
 .page { min-height: 100vh; padding: 24rpx 32rpx 40rpx; }
 .profile { display: flex; align-items: center; gap: 16rpx; padding: 22rpx 24rpx; }
-/* wrapper fixes the slot; button is clipped to the circle so its tap area matches the visual avatar */
-.avatar { position: relative; width: 96rpx; height: 96rpx; flex: none; overflow: visible; }
+/* fixed size + overflow hidden keeps the button's tap area equal to the visible circle;
+   the rooster's oversized internal layout box is clipped instead of enlarging the hit area */
 .avatar-btn {
-  position: absolute;
-  left: 0;
-  top: 0;
+  position: relative;
   width: 96rpx;
   height: 96rpx;
+  flex: none;
   padding: 0;
   border-radius: 50%;
   overflow: hidden;
@@ -26,19 +25,17 @@
 }
 .avatar-edit {
   position: absolute;
-  right: -4rpx;
-  bottom: -4rpx;
-  width: 34rpx;
-  height: 34rpx;
-  min-width: 0;
-  padding: 0;
-  line-height: 28rpx;
+  right: 2rpx;
+  bottom: 2rpx;
+  width: 32rpx;
+  height: 32rpx;
   border-radius: 50%;
   background: #7A2450;
   color: #FFD34D;
-  font-size: 18rpx;
+  font-size: 17rpx;
+  line-height: 26rpx;
   text-align: center;
-  border: 3rpx solid #FFFDF7;
+  border: 2rpx solid #FFFDF7;
   z-index: 2;
 }
 .profile-copy { flex: 1; min-width: 0; }
