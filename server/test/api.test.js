@@ -260,7 +260,8 @@ test('successful WeChat push consumes one quota', async () => {
   config.wxAppId = 'wx_test_appid';
   config.wxSecret = 'test_secret';
   config.wxTemplateId = 'template_test';
-  wx.sendSubscribe = async () => ({ errcode: 0 });
+  let captured;
+  wx.sendSubscribe = async (_openid, opts) => { captured = opts; return { errcode: 0 }; };
   try {
     const openid = db.prepare('SELECT openid FROM reminders WHERE id = ?').get(urgentId).openid;
     db.prepare('UPDATE users SET sub_quota = 2 WHERE openid = ?').run(openid);
@@ -271,6 +272,11 @@ test('successful WeChat push consumes one quota', async () => {
     const n = await api('GET', '/api/me/notifications?limit=5');
     const log = n.data.notifications.find((x) => x.reminder_id === urgentId);
     assert.equal(log.channel, 'wechat');
+    // Template field keys must match the real production template.
+    assert.deepEqual(Object.keys(captured.data).sort(),
+      ['date4', 'thing2', 'thing5', 'thing8', 'time3']);
+    assert.ok(captured.data.thing2.value);
+    assert.match(captured.data.time3.value, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
   } finally {
     config.wxAppId = savedAppId;
     config.wxSecret = savedSecret;

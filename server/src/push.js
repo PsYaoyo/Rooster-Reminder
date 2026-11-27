@@ -28,12 +28,18 @@ async function fire(r, user) {
   if (!config.devMode && config.wxTemplateId) {
     try {
       const wx = require('./wx');
+      // Field keys come from the actual production template (verified via probe-template.js):
+      // thing2 / time3 / date4 / thing5 / thing8. Each template has its own keys.
+      const occ = r.occurrence_at;
+      const stamp = `${fmtDate(occ)} ${fmtTime(occ)}:00`;
       const res = await wx.sendSubscribe(r.openid, {
         templateId: config.wxTemplateId,
         data: {
-          thing1: { value: title.slice(0, 20) },
-          time2: { value: `${fmtDate(r.occurrence_at)} ${fmtTime(r.occurrence_at)}` },
-          thing3: { value: (URGENCY_TONE[r.urgency] || '').slice(0, 20) }
+          thing2: { value: title.slice(0, 20) },                                  // 提醒事项
+          time3: { value: stamp },                                                // 提醒时间
+          date4: { value: fmtDate(occ) },                                         // 提醒日期
+          thing5: { value: (URGENCY_TONE[r.urgency] || '').slice(0, 20) },       // 紧急程度提示
+          thing8: { value: String(r.note || '').slice(0, 20) || '记得处理' }      // 备注
         }
       });
       if (res.errcode === 0) {

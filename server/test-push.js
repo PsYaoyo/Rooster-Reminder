@@ -46,9 +46,11 @@ async function main() {
 
   const now = Date.now();
   const data = {
-    thing1: { value: '订阅消息测试'.slice(0, 20) },
-    time2: { value: `${fmtDate(now)} ${fmtTime(now)}` },
-    thing3: { value: '这是一条服务端测试消息'.slice(0, 20) }
+    thing2: { value: '订阅消息测试' },
+    time3: { value: `${fmtDate(now)} ${fmtTime(now)}:00` },
+    date4: { value: fmtDate(now) },
+    thing5: { value: '这是一条服务端测试消息' },
+    thing8: { value: '记得处理' }
   };
   try {
     const res = await wx.sendSubscribe(openid, { templateId: config.wxTemplateId, data });
