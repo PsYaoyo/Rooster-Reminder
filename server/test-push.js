@@ -25,7 +25,7 @@ async function main() {
     process.exit(1);
   }
 
-  const users = db.prepare('SELECT openid, nickname FROM users ORDER BY created_at DESC').all();
+  const users = db.prepare('SELECT openid, nickname, sub_quota FROM users ORDER BY created_at DESC').all();
   if (!users.length) {
     console.error('\n数据库里还没有用户，先用小程序真机登录一次。');
     process.exit(1);
