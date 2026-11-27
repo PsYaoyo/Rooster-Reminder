@@ -46,11 +46,11 @@ async function main() {
 
   const now = Date.now();
   const data = {
-    thing2: { value: '订阅消息测试' },
-    time3: { value: `${fmtDate(now)} ${fmtTime(now)}:00` },
-    date4: { value: fmtDate(now) },
-    thing5: { value: '这是一条服务端测试消息' },
-    thing8: { value: '记得处理' }
+    thing2: { value: '这是一条服务端测试消息' },  // 提醒内容
+    time3: { value: `${fmtDate(now)} ${fmtTime(now)}:00` }, // 执行时间
+    date4: { value: fmtDate(now) },               // 日程时间
+    thing5: { value: '订阅消息测试' },            // 日程标题
+    thing8: { value: '紧急' }                     // 紧急度
   };
   try {
     const res = await wx.sendSubscribe(openid, { templateId: config.wxTemplateId, data });

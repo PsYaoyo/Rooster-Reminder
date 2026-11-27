@@ -9,6 +9,8 @@ const URGENCY_TONE = {
   3: '重要提醒，请尽快处理',
   4: '紧急！雄鸡全力打鸣，请立即处理'
 };
+// Short label shown in the "紧急度" field of the WeChat subscription message.
+const URGENCY_LABEL = { 1: '低', 2: '中', 3: '高', 4: '紧急' };
 
 function pushBody(r) {
   const when = `${fmtDate(r.occurrence_at)} ${fmtTime(r.occurrence_at)}`;
@@ -28,18 +30,20 @@ async function fire(r, user) {
   if (!config.devMode && config.wxTemplateId) {
     try {
       const wx = require('./wx');
-      // Field keys come from the actual production template (verified via probe-template.js):
-      // thing2 / time3 / date4 / thing5 / thing8. Each template has its own keys.
+      // Field keys come from the real production template (probe-template.js).
+      // Verified against a delivered message: thing2=提醒内容, time3=执行时间,
+      // date4=日程时间, thing5=日程标题, thing8=紧急度.
       const occ = r.occurrence_at;
       const stamp = `${fmtDate(occ)} ${fmtTime(occ)}:00`;
+      const content = String(r.note || '').slice(0, 20) || URGENCY_TONE[r.urgency] || URGENCY_TONE[2];
       const res = await wx.sendSubscribe(r.openid, {
         templateId: config.wxTemplateId,
         data: {
-          thing2: { value: title.slice(0, 20) },                                  // 提醒事项
-          time3: { value: stamp },                                                // 提醒时间
-          date4: { value: fmtDate(occ) },                                         // 提醒日期
-          thing5: { value: (URGENCY_TONE[r.urgency] || '').slice(0, 20) },       // 紧急程度提示
-          thing8: { value: String(r.note || '').slice(0, 20) || '记得处理' }      // 备注
+          thing2: { value: content.slice(0, 20) },                      // 提醒内容（备注优先）
+          time3: { value: stamp },                                      // 执行时间
+          date4: { value: fmtDate(occ) },                               // 日程时间
+          thing5: { value: title.slice(0, 20) },                        // 日程标题
+          thing8: { value: URGENCY_LABEL[r.urgency] || URGENCY_LABEL[2] } // 紧急度
         }
       });
       if (res.errcode === 0) {

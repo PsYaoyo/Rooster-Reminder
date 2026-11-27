@@ -275,7 +275,10 @@ test('successful WeChat push consumes one quota', async () => {
     // Template field keys must match the real production template.
     assert.deepEqual(Object.keys(captured.data).sort(),
       ['date4', 'thing2', 'thing5', 'thing8', 'time3']);
-    assert.ok(captured.data.thing2.value);
+    // Field semantics verified from a delivered WeChat message.
+    assert.equal(captured.data.thing5.value, '紧急吃药');       // 日程标题 = reminder title
+    assert.ok(['低', '中', '高', '紧急'].includes(captured.data.thing8.value)); // 紧急度
+    assert.ok(captured.data.thing2.value);                       // 提醒内容
     assert.match(captured.data.time3.value, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
   } finally {
     config.wxAppId = savedAppId;
